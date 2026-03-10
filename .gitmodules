@@ -1,0 +1,4 @@
+[submodule "flutter_gems"]
+	path = flutter_gems
+	url = https://github.com/md-adnan-ullah/flutter_gems.git
+	branch = develop
