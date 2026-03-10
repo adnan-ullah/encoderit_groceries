@@ -48,7 +48,7 @@ class EncoderGroceriesApp extends StatelessWidget {
           getPages: AppPages.routes,
           routerDelegate: GetDelegate(),
           routeInformationParser: GetInformationParser(
-            initialRoute: AppRoutes.home,
+            initialRoute: AppRoutes.root,
           ),
           debugShowCheckedModeBanner: false,
         );

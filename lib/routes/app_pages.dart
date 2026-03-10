@@ -2,9 +2,7 @@ import 'package:get/get.dart';
 
 
 import 'nav_shell.dart';
-import '../pages/todo_page.dart';
-import '../controllers/todo_controller.dart';
-import '../services/app_services.dart';
+import '../pages/home_page.dart';
 
 class AppRoutes {
   static const root = '/';
@@ -28,11 +26,7 @@ class AppPages {
       children: [
         GetPage(
           name: AppRoutes.home,
-          page: () => const TodoPage(),
-          binding: BindingsBuilder(() {
-            // Inject controller from get_it - use permanent to keep it in memory
-            Get.put(AppServices.getIt<TodoController>(), permanent: true);
-          }),
+          page: () => const HomePage(),
         ),
         // GetPage(
         //   name: AppRoutes.todos,
