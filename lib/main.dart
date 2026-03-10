@@ -22,7 +22,7 @@ void main() async {
       apiTimeout: const Duration(seconds: 30),
     ),
   );
-
+  //comment out
   // Pre-initialize Controllers to ensure they're always available
   // Get.put(AppServices.getIt<ProductController>(), permanent: true);
 
