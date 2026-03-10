@@ -29,7 +29,7 @@ class _ProductPageState extends State<ProductPage> {
     return Scaffold(
       appBar: ResponsiveAppBar(
         title: Text(
-          'Products',
+          'Products (Filters Demo)',
           style: TextStyle(
             fontSize: ResponsiveHelper.getResponsiveFontSize(context, 20),
             fontWeight: FontWeight.bold,
@@ -51,7 +51,11 @@ class _ProductPageState extends State<ProductPage> {
         collapseOnScroll: true,
         scrollController: _scrollController,
       ),
-      body: Obx(() {
+      body: Column(
+        children: [
+          _FilterBar(controller: controller),
+          Expanded(
+            child: Obx(() {
         if (controller.isLoading.value && controller.items.isEmpty) {
           return Center(
             child: Column(
@@ -138,29 +142,160 @@ class _ProductPageState extends State<ProductPage> {
           );
         }
 
-        return RefreshIndicator(
-          onRefresh: () => controller.refresh(),
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: ResponsiveHelper.getResponsivePadding(context, all: 8),
-            itemCount: controller.items.length,
-            itemBuilder: (context, index) {
-              final product = controller.items[index];
-              return AnimatedListItem(
-                key: ValueKey(product.id),
-                index: index,
-                animationType: ListAnimationType.fadeSlide,
-                slideDirection: ListSlideDirection.fromBottom,
-                delay: const Duration(milliseconds: 50),
-                child: _ProductItem(
-                  key: ValueKey(product.id),
-                  product: product,
+              return RefreshIndicator(
+                onRefresh: () => controller.refresh(),
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding:
+                      ResponsiveHelper.getResponsivePadding(context, all: 8),
+                  itemCount: controller.items.length,
+                  itemBuilder: (context, index) {
+                    final product = controller.items[index];
+                    return AnimatedListItem(
+                      key: ValueKey(product.id),
+                      index: index,
+                      animationType: ListAnimationType.fadeSlide,
+                      slideDirection: ListSlideDirection.fromBottom,
+                      delay: const Duration(milliseconds: 50),
+                      child: _ProductItem(
+                        key: ValueKey(product.id),
+                        product: product,
+                      ),
+                    );
+                  },
                 ),
               );
-            },
+            }),
           ),
-        );
-      }),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterBar extends StatelessWidget {
+  final ProductController controller;
+
+  const _FilterBar({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: ResponsiveHelper.getResponsivePadding(
+        context,
+        horizontal: 8,
+        vertical: 8,
+      ),
+      decoration: BoxDecoration(
+        color: AppTheme.darkCard,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _FilterChipButton(
+              label: 'All',
+              icon: Icons.grid_view,
+              onTap: () => controller.loadItems(),
+            ),
+            _FilterChipButton(
+              label: 'By ID (440)',
+              icon: Icons.tag,
+              onTap: () => controller.loadById(440),
+            ),
+            _FilterChipButton(
+              label: 'Category 12',
+              icon: Icons.category_outlined,
+              onTap: () => controller.loadByCategory(12),
+            ),
+            _FilterChipButton(
+              label: 'Brand 23',
+              icon: Icons.storefront_outlined,
+              onTap: () => controller.loadByBrand(23),
+            ),
+            _FilterChipButton(
+              label: 'Best Selling',
+              icon: Icons.star_rate_outlined,
+              onTap: () => controller.loadBestSelling(),
+            ),
+            _FilterChipButton(
+              label: 'Featured',
+              icon: Icons.emoji_events_outlined,
+              onTap: () => controller.loadFeatured(),
+            ),
+            _FilterChipButton(
+              label: 'Newest First',
+              icon: Icons.schedule_outlined,
+              onTap: () =>
+                  controller.loadOrdered(orderBy: 'date', order: 'desc'),
+            ),
+            _FilterChipButton(
+              label: 'Oldest First',
+              icon: Icons.history_toggle_off,
+              onTap: () =>
+                  controller.loadOrdered(orderBy: 'date', order: 'asc'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterChipButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _FilterChipButton({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: ResponsiveHelper.getResponsiveMargin(
+        context,
+        horizontal: 4,
+      ),
+      child: AnimatedButton(
+        onPressed: onTap,
+        padding: ResponsiveHelper.getResponsivePadding(
+          context,
+          horizontal: 12,
+          vertical: 8,
+        ),
+        backgroundColor: AppTheme.darkBackground,
+        foregroundColor: AppTheme.textPrimary,
+        elevation: 0,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: ResponsiveHelper.getResponsiveSize(context, 16),
+            ),
+            SizedBox(
+              width: ResponsiveHelper.getResponsiveWidth(context, 4),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: ResponsiveHelper.getResponsiveFontSize(context, 12),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
