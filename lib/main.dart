@@ -17,7 +17,8 @@ void main() async {
   await appServices.initialize(
     environmentMode: EnvironmentMode.development,
     appConfig: AppConfig(
-      apiBaseUrl: 'https://fakestoreapi.com',
+      apiBaseUrl:
+          'https://encoder-staging.site/luxurious-skincare-wp/wp-json/wc/v3',
       enableLogging: true,
       apiTimeout: const Duration(seconds: 30),
     ),

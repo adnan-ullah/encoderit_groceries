@@ -1,9 +1,10 @@
 import 'package:get/get.dart';
 
-
 import 'nav_shell.dart';
 import '../pages/todo_page.dart';
+import '../pages/product_page.dart';
 import '../controllers/todo_controller.dart';
+import '../controllers/product_controller.dart';
 import '../services/app_services.dart';
 
 class AppRoutes {
@@ -42,17 +43,15 @@ class AppPages {
         //     Get.put(AppServices.getIt<TodoController>());
         //   }),
         // ),
-        // GetPage(
-        //   name: AppRoutes.products,
-        //   page: () => const ProductPage(),
-        //   binding: BindingsBuilder(() {
-        //     // Inject controller from get_it - use permanent to keep it in memory
-        //     // Use putIfAbsent to avoid recreating if already exists
-        //     if (!Get.isRegistered<ProductController>()) {
-        //       Get.put(AppServices.getIt<ProductController>(), permanent: true);
-        //     }
-        //   }),
-        // ),
+        GetPage(
+          name: AppRoutes.products,
+          page: () => const ProductPage(),
+          binding: BindingsBuilder(() {
+            if (!Get.isRegistered<ProductController>()) {
+              Get.put(AppServices.getIt<ProductController>(), permanent: true);
+            }
+          }),
+        ),
 
         // GetPage(
         //   name: AppRoutes.settings,
