@@ -3,7 +3,6 @@ import 'package:gems_responsive/gems_responsive.dart';
 import 'package:gems_core/gems_core.dart';
 import 'package:get_it/get_it.dart';
 
-import '../di/todo/todo_di.dart';
 import '../di/product/product_di.dart';
 
 
@@ -42,7 +41,7 @@ class AppServices {
     setupResponsiveServices();
 
     // Setup domain layer services (feature-wise)
-    await setupTodoDomainServices();
+    // Todo API is not available on current backend, so we only wire products for now.
     await setupProductDomainServices();
     // await setupCartDomainServices();
     // setupFavoritesDomainServices();

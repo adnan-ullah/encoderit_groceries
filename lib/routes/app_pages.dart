@@ -1,9 +1,7 @@
 import 'package:get/get.dart';
 
 import 'nav_shell.dart';
-import '../pages/todo_page.dart';
 import '../pages/product_page.dart';
-import '../controllers/todo_controller.dart';
 import '../controllers/product_controller.dart';
 import '../services/app_services.dart';
 
@@ -27,12 +25,14 @@ class AppPages {
       page: () => const NavShell(),
       participatesInRootNavigator: true,
       children: [
+        // Home shows products list now (Todo API not available on WooCommerce backend)
         GetPage(
           name: AppRoutes.home,
-          page: () => const TodoPage(),
+          page: () => const ProductPage(),
           binding: BindingsBuilder(() {
-            // Inject controller from get_it - use permanent to keep it in memory
-            Get.put(AppServices.getIt<TodoController>(), permanent: true);
+            if (!Get.isRegistered<ProductController>()) {
+              Get.put(AppServices.getIt<ProductController>(), permanent: true);
+            }
           }),
         ),
         // GetPage(

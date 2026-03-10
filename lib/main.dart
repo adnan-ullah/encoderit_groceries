@@ -4,9 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 import 'package:gems_core/gems_core.dart';
 
-import 'routes/app_pages.dart';
 import 'services/app_services.dart';
 import 'utils/app_theme.dart';
+import 'routes/app_pages.dart';
 
 
 void main() async {
@@ -24,10 +24,6 @@ void main() async {
     ),
   );
 
-  // Pre-initialize Controllers to ensure they're always available
-  // Get.put(AppServices.getIt<ProductController>(), permanent: true);
-
-
   runApp(const EncoderGroceriesApp());
 }
 
@@ -43,14 +39,11 @@ class EncoderGroceriesApp extends StatelessWidget {
       ),
       minTextAdapt: true,
       builder: (context, child) {
-        return GetMaterialApp.router(
+        return GetMaterialApp(
           title: 'ShowProd - Product Showcase',
           theme: AppTheme.darkTheme,
           getPages: AppPages.routes,
-          routerDelegate: GetDelegate(),
-          routeInformationParser: GetInformationParser(
-            initialRoute: AppRoutes.home,
-          ),
+          initialRoute: AppRoutes.root,
           debugShowCheckedModeBanner: false,
         );
       },
