@@ -42,11 +42,19 @@ class EncoderGroceriesApp extends StatelessWidget {
       ),
       minTextAdapt: true,
       builder: (context, child) {
-        return GetMaterialApp(
+        return GetMaterialApp.router(
           title: 'ShowProd - Product Showcase',
           theme: AppTheme.lightTheme,
-          initialRoute: AppRoutes.root,
           getPages: AppPages.routes,
+          routerDelegate: GetDelegate(),
+          routeInformationProvider: PlatformRouteInformationProvider(
+            initialRouteInformation: const RouteInformation(
+              location: AppRoutes.root,
+            ),
+          ),
+          routeInformationParser: GetInformationParser(
+            initialRoute: AppRoutes.root,
+          ),
           debugShowCheckedModeBanner: false,
         );
       },

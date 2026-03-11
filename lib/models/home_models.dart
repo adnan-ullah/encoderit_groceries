@@ -85,3 +85,18 @@ class PopularBrand {
   final String name;
 }
 
+/// Dummy model for Wishlist page.
+class WishlistProduct {
+  const WishlistProduct({
+    required this.name,
+    required this.unit,
+    required this.price,
+    this.isFavorite = true,
+  });
+
+  final String name;
+  final String unit;
+  final double price;
+  final bool isFavorite;
+}
+

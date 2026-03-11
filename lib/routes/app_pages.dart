@@ -3,6 +3,10 @@ import 'package:get/get.dart';
 
 import 'nav_shell.dart';
 import '../pages/home_page.dart';
+import '../pages/category_page.dart';
+import '../pages/cart_page.dart';
+import '../pages/profile_page.dart';
+import '../pages/wishlist_page.dart';
 
 class AppRoutes {
   static const root = '/';
@@ -10,7 +14,7 @@ class AppRoutes {
   static const todos = '/todos';
   static const products = '/products';
   static const cart = '/cart';
-  static const settings = '/settings';
+  static const profile = '/profile';
   static const favorites = '/favorites';
   static const search = '/search';
 }
@@ -27,6 +31,22 @@ class AppPages {
         GetPage(
           name: AppRoutes.home,
           page: () => const HomePage(),
+        ),
+        GetPage(
+          name: AppRoutes.products,
+          page: () => const CategoryPage(),
+        ),
+        GetPage(
+          name: AppRoutes.cart,
+          page: () => const CartPage(),
+        ),
+        GetPage(
+          name: AppRoutes.profile,
+          page: () => const ProfilePage(),
+        ),
+        GetPage(
+          name: AppRoutes.favorites,
+          page: () => const WishlistPage(),
         ),
         // GetPage(
         //   name: AppRoutes.todos,

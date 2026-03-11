@@ -21,8 +21,8 @@ class NavShell extends StatelessWidget {
         ResponsiveNavItem(
           route: AppRoutes.products,
           label: 'Categories',
-          icon: Icons.shopping_bag_outlined,
-          activeIcon: Icons.shopping_bag,
+          icon: Icons.grid_view_outlined,
+          activeIcon: Icons.grid_view,
         ),
         ResponsiveNavItem(
           route: AppRoutes.cart,
@@ -43,7 +43,7 @@ class NavShell extends StatelessWidget {
         //   activeIcon: Icons.check_circle,
         // ),
         ResponsiveNavItem(
-          route: AppRoutes.settings,
+          route: AppRoutes.profile,
           label: 'Profile',
           icon: Icons.person_outline,
           activeIcon: Icons.person,
