@@ -788,7 +788,9 @@ class HomePage extends StatelessWidget {
           ),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () => Get.rootDelegate.toNamed(
+        AppRoutes.offerDetails,
+        ),
           style: TextButton.styleFrom(
             backgroundColor: AppTheme.goldPrimary,
             foregroundColor: AppTheme.lightSurface,

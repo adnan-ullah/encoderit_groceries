@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
+import '../routes/app_pages.dart';
 import '../utils/app_theme.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -74,7 +76,8 @@ class ProfilePage extends StatelessWidget {
                     label: 'Sign Up',
                     background: AppTheme.goldPrimary.withOpacity(0.15),
                     foreground: AppTheme.goldPrimary,
-                    onTap: () {},
+                    onTap: () =>
+                        Get.rootDelegate.toNamed(AppRoutes.signUp),
                   ),
                 ),
                 SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 14)),
