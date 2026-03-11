@@ -18,7 +18,7 @@ void main() async {
     environmentMode: EnvironmentMode.development,
     appConfig: AppConfig(
       apiBaseUrl:
-          'https://encoder-staging.site/luxurious-skincare-wp/wp-json/wc/v3',
+          'https://encoder-staging.site/luxurious-skincare-wp/',
       enableLogging: true,
       apiTimeout: const Duration(seconds: 30),
     ),
@@ -43,7 +43,7 @@ class EncoderGroceriesApp extends StatelessWidget {
           title: 'ShowProd - Product Showcase',
           theme: AppTheme.darkTheme,
           getPages: AppPages.routes,
-          initialRoute: AppRoutes.root,
+          initialRoute: AppRoutes.login,
           debugShowCheckedModeBanner: false,
         );
       },

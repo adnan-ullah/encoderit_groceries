@@ -10,23 +10,23 @@ class ProductRepository extends BaseRepository<Product> {
     required super.apiService,
     required super.databaseService,
     required super.syncService,
-  }) : super(baseEndpoint: ApiEndpoints.productsList);
+  }) : super(baseEndpoint: ApiEndpoints.productsBase);
 
   @override
   Product fromJson(Map<String, dynamic> json) => Product.fromJson(json);
 
-  /// Product by ID: /products/{id}/?auth
+  /// Product by ID: /wc/v3/products/{id}?auth
   Future<Result<Product>> getProductById(int id, {bool useCache = true}) {
     return getById(id.toString(), useCache: useCache);
   }
 
   /// Helper to build a filtered products URL with auth.
   String _filteredEndpoint(String query) {
-    // Example: /products?category=12&consumer_key=...&consumer_secret=...
+    // Example: /wc/v3/products?category=12&consumer_key=...&consumer_secret=...
     return '${ApiEndpoints.productsBase}?$query&${ApiEndpoints.productsAuthQuery}';
   }
 
-  /// Product by category: /products?category=12&auth
+  /// Product by category: /wc/v3/products?category=12&auth
   Future<Result<List<Product>>> getProductsByCategory(int categoryId) async {
     try {
       final response = await apiService.get<List<dynamic>>(
@@ -48,7 +48,7 @@ class ProductRepository extends BaseRepository<Product> {
     }
   }
 
-  /// Product by brand: /products?brand=23&auth
+  /// Product by brand: /wc/v3/products?brand=23&auth
   Future<Result<List<Product>>> getProductsByBrand(int brandId) async {
     try {
       final response = await apiService.get<List<dynamic>>(
@@ -70,7 +70,7 @@ class ProductRepository extends BaseRepository<Product> {
     }
   }
 
-  /// Product by best selling: /products?orderby=popularity&auth
+  /// Product by best selling: /wc/v3/products?orderby=popularity&auth
   Future<Result<List<Product>>> getBestSellingProducts() async {
     try {
       final response = await apiService.get<List<dynamic>>(
@@ -92,7 +92,7 @@ class ProductRepository extends BaseRepository<Product> {
     }
   }
 
-  /// Product by featured: /products?featured=true&auth
+  /// Product by featured: /wc/v3/products?featured=true&auth
   Future<Result<List<Product>>> getFeaturedProducts() async {
     try {
       final response = await apiService.get<List<dynamic>>(
@@ -114,7 +114,7 @@ class ProductRepository extends BaseRepository<Product> {
     }
   }
 
-  /// Product by order options: /products?orderby=date&order=asc&auth
+  /// Product by order options: /wc/v3/products?orderby=date&order=asc&auth
   Future<Result<List<Product>>> getProductsOrdered({
     String orderBy = 'date',
     String order = 'asc',

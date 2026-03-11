@@ -4,6 +4,7 @@ import 'package:gems_core/gems_core.dart';
 import 'package:get_it/get_it.dart';
 
 import '../di/product/product_di.dart';
+import '../di/auth/auth_di.dart';
 
 
 /// App Services using get_it for dependency injection
@@ -41,7 +42,7 @@ class AppServices {
     setupResponsiveServices();
 
     // Setup domain layer services (feature-wise)
-    // Todo API is not available on current backend, so we only wire products for now.
+    await setupAuthDomainServices();
     await setupProductDomainServices();
     // await setupCartDomainServices();
     // setupFavoritesDomainServices();

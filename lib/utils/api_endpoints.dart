@@ -1,25 +1,22 @@
+import 'woo_auth_config.dart';
+
 /// API Endpoints Helper
 /// Centralized location for all API base endpoints
 /// BaseRepository automatically handles ID paths (e.g., /todos/$id)
 class ApiEndpoints {
   static const String todos = '/todos';
 
-  /// WooCommerce auth details (dummy here – treat as token-like).
-  /// The base URL should already include the `/wp-json/wc/v3` part via Environment.apiBaseUrl.
-  static const String _consumerKey =
-      'ck_0cdadeb2f0389f090bcb897fb0f52109d3b8f8b7';
-  static const String _consumerSecret =
-      'cs_7f766c1eacf557d0a230328a2ead7e354e2ef83d';
+  /// Auth / login
+  /// With apiBaseUrl = https://encoder-staging.site/luxurious-skincare-wp/
+  /// this becomes: wp-json/auth/v1/login
+  static const String login = 'wp-json/auth/v1/login';
 
-  /// Public auth query – can be reused when building filtered endpoints.
-  static const String productsAuthQuery =
-      'consumer_key=$_consumerKey&consumer_secret=$_consumerSecret';
+  /// WooCommerce products base path (without query).
+  /// With apiBaseUrl = .../ this becomes: wp-json/wc/v3/products
+  static const String productsBase = 'wp-json/wc/v3/products';
 
-  /// Base products path (without query).
-  static const String productsBase = '/products';
-
-  /// Default products listing endpoint.
-  static String get productsList => '$productsBase?$productsAuthQuery';
+  /// Dynamic auth query built from WooAuthConfig (updated after login).
+  static String get productsAuthQuery => WooAuthConfig.authQuery;
 
   static const String carts = '/carts';
 

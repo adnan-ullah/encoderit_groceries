@@ -2,11 +2,14 @@ import 'package:get/get.dart';
 
 import 'nav_shell.dart';
 import '../pages/product_page.dart';
+import '../pages/login_page.dart';
 import '../controllers/product_controller.dart';
+import '../controllers/auth_controller.dart';
 import '../services/app_services.dart';
 
 class AppRoutes {
   static const root = '/';
+  static const login = '/login';
   static const home = '/home';
   static const todos = '/todos';
   static const products = '/products';
@@ -20,6 +23,15 @@ class AppPages {
   AppPages._();
 
   static final routes = <GetPage>[
+    GetPage(
+      name: AppRoutes.login,
+      page: () => const LoginPage(),
+      binding: BindingsBuilder(() {
+        if (!Get.isRegistered<AuthController>()) {
+          Get.put(AppServices.getIt<AuthController>(), permanent: true);
+        }
+      }),
+    ),
     GetPage(
       name: AppRoutes.root,
       page: () => const NavShell(),
