@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../models/home_models.dart';
+import '../routes/app_pages.dart';
 import '../utils/app_theme.dart';
 
 class HomePage extends StatelessWidget {
@@ -486,42 +488,48 @@ class HomePage extends StatelessWidget {
             SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
         itemBuilder: (context, index) {
           final category = _categories[index];
-          return Container(
-            width: ResponsiveHelper.getResponsiveWidth(context, 120),
-            padding: ResponsiveHelper.getResponsivePadding(
-              context,
-              horizontal: 12,
-              vertical: 10,
+          return InkWell(
+            onTap: () => Get.rootDelegate.toNamed(
+              AppRoutes.categoryDetails,
+              arguments: category,
             ),
-            decoration: BoxDecoration(
-              color: AppTheme.lightSurface,
-              borderRadius: BorderRadius.circular(
-                ResponsiveHelper.getResponsiveRadius(context, 16),
+            child: Container(
+              width: ResponsiveHelper.getResponsiveWidth(context, 120),
+              padding: ResponsiveHelper.getResponsivePadding(
+                context,
+                horizontal: 12,
+                vertical: 10,
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: AppTheme.goldPrimary.withOpacity(0.15),
-                  child: Icon(
-                    category.icon,
-                    color: AppTheme.goldPrimary,
-                    size: 20,
+              decoration: BoxDecoration(
+                color: AppTheme.lightSurface,
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getResponsiveRadius(context, 16),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: AppTheme.goldPrimary.withOpacity(0.15),
+                    child: Icon(
+                      category.icon,
+                      color: AppTheme.goldPrimary,
+                      size: 20,
+                    ),
                   ),
-                ),
-                const Spacer(),
-                Text(
-                  category.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textPrimary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                ),
-              ],
+                  const Spacer(),
+                  Text(
+                    category.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppTheme.textPrimary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -540,45 +548,52 @@ class HomePage extends StatelessWidget {
       required String badge,
     }) {
       return Expanded(
-        child: Container(
-          height: ResponsiveHelper.getResponsiveHeight(context, 120),
-          padding: ResponsiveHelper.getResponsivePadding(
-            context,
-            horizontal: 12,
-            vertical: 12,
+        child: InkWell(
+          onTap: () => Get.rootDelegate.toNamed(
+            AppRoutes.offerDetails,
+            arguments: title.replaceAll('\n', ' '),
           ),
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(radius),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                badge,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: Colors.black.withOpacity(0.6),
-                  fontWeight: FontWeight.w600,
+          borderRadius: BorderRadius.circular(radius),
+          child: Container(
+            height: ResponsiveHelper.getResponsiveHeight(context, 120),
+            padding: ResponsiveHelper.getResponsivePadding(
+              context,
+              horizontal: 12,
+              vertical: 12,
+            ),
+            decoration: BoxDecoration(
+              color: background,
+              borderRadius: BorderRadius.circular(radius),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  badge,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: Colors.black.withOpacity(0.6),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              const Spacer(),
-              Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w700,
+                const Spacer(),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.black54,
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.black54,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
@@ -974,63 +989,69 @@ class HomePage extends StatelessWidget {
             SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
         itemBuilder: (context, index) {
           final brand = _popularBrands[index];
-          return SizedBox(
-            width: ResponsiveHelper.getResponsiveWidth(context, cardWidth),
-            child: Container(
-              padding: ResponsiveHelper.getResponsivePadding(
-                context,
-                horizontal: 12,
-                vertical: 12,
-              ),
-              decoration: BoxDecoration(
-                color: AppTheme.lightSurface,
-                borderRadius: BorderRadius.circular(radius),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppTheme.goldPrimary.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Text(
-                            brand.name.isNotEmpty
-                                ? brand.name.substring(0, 1).toUpperCase()
-                                : '?',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: AppTheme.goldPrimary,
-                              fontWeight: FontWeight.w800,
+          return InkWell(
+            onTap: () => Get.rootDelegate.toNamed(
+              AppRoutes.categoryDetails,
+              arguments: brand,
+            ),
+            child: SizedBox(
+              width: ResponsiveHelper.getResponsiveWidth(context, cardWidth),
+              child: Container(
+                padding: ResponsiveHelper.getResponsivePadding(
+                  context,
+                  horizontal: 12,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightSurface,
+                  borderRadius: BorderRadius.circular(radius),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppTheme.goldPrimary.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              brand.name.isNotEmpty
+                                  ? brand.name.substring(0, 1).toUpperCase()
+                                  : '?',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                color: AppTheme.goldPrimary,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    brand.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: AppTheme.textPrimary,
-                      fontWeight: FontWeight.w500,
+                    const SizedBox(height: 6),
+                    Text(
+                      brand.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

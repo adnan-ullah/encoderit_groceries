@@ -100,3 +100,33 @@ class WishlistProduct {
   final bool isFavorite;
 }
 
+/// Dummy model for category details product grid.
+class CategoryDetailProduct {
+  const CategoryDetailProduct({
+    required this.name,
+    required this.price,
+    required this.oldPrice,
+    this.isFavorite = false,
+  });
+
+  final String name;
+  final double price;
+  final double? oldPrice;
+  final bool isFavorite;
+}
+
+/// Dummy model for offer details product grid.
+class OfferDetailProduct {
+  const OfferDetailProduct({
+    required this.name,
+    required this.price,
+    this.oldPrice,
+    this.isFavorite = true,
+  });
+
+  final String name;
+  final double price;
+  final double? oldPrice;
+  final bool isFavorite;
+}
+

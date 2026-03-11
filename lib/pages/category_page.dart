@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../utils/app_theme.dart';
+import '../routes/app_pages.dart';
 
 class CategoryPage extends StatelessWidget {
   const CategoryPage({super.key});
@@ -51,7 +53,10 @@ class CategoryPage extends StatelessWidget {
           itemBuilder: (context, index) {
             final title = _categories[index];
             return InkWell(
-              onTap: () {},
+              onTap: () => Get.rootDelegate.toNamed(
+                AppRoutes.categoryDetails,
+                arguments: title,
+              ),
               borderRadius: BorderRadius.circular(
                 ResponsiveHelper.getResponsiveRadius(context, 12),
               ),
