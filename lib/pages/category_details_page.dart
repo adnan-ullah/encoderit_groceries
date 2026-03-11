@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../models/home_models.dart';
+import '../routes/app_pages.dart';
+import 'sorting_page.dart';
+import 'product_details_page.dart';
 import '../utils/app_theme.dart';
 
 class CategoryDetailsPage extends StatelessWidget {
@@ -12,6 +15,7 @@ class CategoryDetailsPage extends StatelessWidget {
   });
 
   final String categoryName;
+  static SortOption _currentSort = SortOption.popularity;
 
   static const _dummyProducts = <CategoryDetailProduct>[
     CategoryDetailProduct(
@@ -64,7 +68,8 @@ class CategoryDetailsPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {},
+            onPressed: () =>
+                Get.rootDelegate.toNamed(AppRoutes.search),
           ),
           SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 8)),
         ],
@@ -104,7 +109,34 @@ class CategoryDetailsPage extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      final result = await showModalBottomSheet<SortOption>(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.white,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(22),
+                          ),
+                        ),
+                        builder: (context) => SortingPage(
+                          initial: _currentSort,
+                        ),
+                      );
+
+                      if (result != null) {
+                        _currentSort = result;
+                        Get.snackbar(
+                          'Sorting applied',
+                          result.name,
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.white,
+                          colorText: AppTheme.textPrimary,
+                          margin: const EdgeInsets.all(12),
+                          duration: const Duration(seconds: 2),
+                        );
+                      }
+                    },
                     icon: const Icon(Icons.tune),
                   ),
                 ],
@@ -196,7 +228,7 @@ class _CategoryProductCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () => showProductDetailsSheet(context),
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
                         padding: const EdgeInsets.symmetric(

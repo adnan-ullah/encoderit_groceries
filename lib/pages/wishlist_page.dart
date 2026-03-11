@@ -3,6 +3,7 @@ import 'package:gems_responsive/gems_responsive.dart';
 
 import '../models/home_models.dart';
 import '../utils/app_theme.dart';
+import 'product_details_page.dart';
 
 class WishlistPage extends StatelessWidget {
   const WishlistPage({super.key});
@@ -118,7 +119,7 @@ class _WishlistCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () => showProductDetailsSheet(context),
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
                         padding: const EdgeInsets.symmetric(

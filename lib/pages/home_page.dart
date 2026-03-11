@@ -5,6 +5,7 @@ import 'package:gems_responsive/gems_responsive.dart';
 import '../models/home_models.dart';
 import '../routes/app_pages.dart';
 import '../utils/app_theme.dart';
+import 'product_details_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -210,7 +211,7 @@ class HomePage extends StatelessWidget {
       elevation: 0,
       titleSpacing: ResponsiveHelper.getResponsiveWidth(context, 16),
       title: Text(
-        'StoreKing',
+        'Encoder Groceries',
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: AppTheme.goldPrimary,
             ),
@@ -218,7 +219,7 @@ class HomePage extends StatelessWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.search),
-          onPressed: () {},
+          onPressed: () => Get.rootDelegate.toNamed(AppRoutes.search),
         ),
         SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 8)),
       ],
@@ -432,8 +433,8 @@ class HomePage extends StatelessWidget {
                     ResponsiveHelper.getResponsiveSpacing(context, 12),
                     Material(
                       color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {},
+                    child: InkWell(
+                      onTap: () => showProductDetailsSheet(context),
                         borderRadius: BorderRadius.circular(24),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -690,7 +691,7 @@ class HomePage extends StatelessWidget {
                           child: Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              onTap: () {},
+                              onTap: () => showProductDetailsSheet(context),
                               borderRadius: BorderRadius.circular(20),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -878,10 +879,10 @@ class HomePage extends StatelessWidget {
                       right: 8,
                       child: Material(
                         color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {},
+                    child: InkWell(
+                      onTap: () => showProductDetailsSheet(context),
                           borderRadius: BorderRadius.circular(20),
-                          child: Container(
+                              child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 6,
@@ -1123,7 +1124,7 @@ class HomePage extends StatelessWidget {
                         child: Material(
                           color: Colors.transparent,
                           child: InkWell(
-                            onTap: () {},
+                            onTap: () => showProductDetailsSheet(context),
                             borderRadius: BorderRadius.circular(20),
                             child: Container(
                               padding: const EdgeInsets.symmetric(

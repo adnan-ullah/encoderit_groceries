@@ -33,7 +33,8 @@ class CategoryPage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {},
+            onPressed: () =>
+                Get.rootDelegate.toNamed(AppRoutes.search),
           ),
           SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 8)),
         ],

@@ -9,6 +9,7 @@ import '../pages/profile_page.dart';
 import '../pages/wishlist_page.dart';
 import '../pages/category_details_page.dart';
 import '../pages/offer_details_page.dart';
+import '../pages/search_page.dart';
 
 class AppRoutes {
   static const root = '/';
@@ -27,6 +28,10 @@ class AppPages {
   AppPages._();
 
   static final routes = <GetPage>[
+    GetPage(
+      name: AppRoutes.search,
+      page: () => const SearchPage(),
+    ),
     GetPage(
       name: AppRoutes.categoryDetails,
       page: () {
