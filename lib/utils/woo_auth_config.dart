@@ -1,7 +1,6 @@
 class WooAuthConfig {
-  /// These act like dynamic credentials for WooCommerce.
-  /// Initially they use dummy values; after login they are updated
-  /// from the login API response and used across the app.
+  /// WooCommerce API credentials. For now fixed; after auth is ready
+  /// these will be set dynamically from the login API response.
   static String consumerKey =
       'ck_0cdadeb2f0389f090bcb897fb0f52109d3b8f8b7';
   static String consumerSecret =

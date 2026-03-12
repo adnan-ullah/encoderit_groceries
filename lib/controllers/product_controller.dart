@@ -16,10 +16,12 @@ class ProductController extends BaseListController<Product>
 
   @override
   Future<void> loadItems() async {
+    items.clear();
     await handleListResult(() => repository.getAll());
   }
 
   Future<void> loadById(int id) async {
+    items.clear();
     await handleResult(
       () => repository.getProductById(id),
       onSuccess: (product) {
@@ -31,24 +33,28 @@ class ProductController extends BaseListController<Product>
   }
 
   Future<void> loadByCategory(int categoryId) async {
+    items.clear();
     await handleListResult(
       () => repository.getProductsByCategory(categoryId),
     );
   }
 
   Future<void> loadByBrand(int brandId) async {
+    items.clear();
     await handleListResult(
       () => repository.getProductsByBrand(brandId),
     );
   }
 
   Future<void> loadBestSelling() async {
+    items.clear();
     await handleListResult(
       () => repository.getBestSellingProducts(),
     );
   }
 
   Future<void> loadFeatured() async {
+    items.clear();
     await handleListResult(
       () => repository.getFeaturedProducts(),
     );
@@ -58,6 +64,7 @@ class ProductController extends BaseListController<Product>
     String orderBy = 'date',
     String order = 'asc',
   }) async {
+    items.clear();
     await handleListResult(
       () => repository.getProductsOrdered(orderBy: orderBy, order: order),
     );

@@ -15,9 +15,50 @@ class ProductRepository extends BaseRepository<Product> {
   @override
   Product fromJson(Map<String, dynamic> json) => Product.fromJson(json);
 
+  /// WooCommerce requires consumer_key and consumer_secret on every request.
+  String get _productsListEndpoint =>
+      '${ApiEndpoints.productsBase}?${ApiEndpoints.productsAuthQuery}';
+
+  @override
+  Future<Result<List<Product>>> getAll({bool useCache = true}) async {
+    try {
+      final response = await apiService.get<List<dynamic>>(
+        _productsListEndpoint,
+        fromJson: (data) => (data as List)
+            .map((e) => fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+
+      if (response.success && response.data != null) {
+        return Result.success(response.data! as List<Product>);
+      }
+
+      return Result.failure(
+        ApiError(message: response.message ?? 'Failed to fetch'),
+      );
+    } catch (e, stackTrace) {
+      return Result.failure(NetworkError.fromException(e, stackTrace));
+    }
+  }
+
   /// Product by ID: /wc/v3/products/{id}?auth
-  Future<Result<Product>> getProductById(int id, {bool useCache = true}) {
-    return getById(id.toString(), useCache: useCache);
+  Future<Result<Product>> getProductById(int id, {bool useCache = true}) async {
+    try {
+      final path =
+          '${ApiEndpoints.productsBase}/$id?${ApiEndpoints.productsAuthQuery}';
+      final response = await apiService.get<Map<String, dynamic>>(
+        path,
+        fromJson: (data) => data as Map<String, dynamic>,
+      );
+      if (response.success && response.data != null) {
+        return Result.success(fromJson(response.data!));
+      }
+      return Result.failure(
+        ApiError(message: response.message ?? 'Failed to fetch product'),
+      );
+    } catch (e, stackTrace) {
+      return Result.failure(NetworkError.fromException(e, stackTrace));
+    }
   }
 
   /// Helper to build a filtered products URL with auth.
