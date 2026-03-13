@@ -4,9 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 import 'package:gems_core/gems_core.dart';
 
-import 'routes/app_pages.dart';
 import 'services/app_services.dart';
 import 'utils/app_theme.dart';
+import 'routes/app_pages.dart';
 
 
 void main() async {
@@ -17,15 +17,12 @@ void main() async {
   await appServices.initialize(
     environmentMode: EnvironmentMode.development,
     appConfig: AppConfig(
-      apiBaseUrl: 'https://fakestoreapi.com',
+      apiBaseUrl:
+          'https://encoder-staging.site/luxurious-skincare-wp/',
       enableLogging: true,
       apiTimeout: const Duration(seconds: 30),
     ),
   );
-  //comment out
-  // Pre-initialize Controllers to ensure they're always available
-  // Get.put(AppServices.getIt<ProductController>(), permanent: true);
-
 
   runApp(const EncoderGroceriesApp());
 }

@@ -1,9 +1,23 @@
+import 'woo_auth_config.dart';
+
 /// API Endpoints Helper
 /// Centralized location for all API base endpoints
 /// BaseRepository automatically handles ID paths (e.g., /todos/$id)
 class ApiEndpoints {
   static const String todos = '/todos';
-  static const String products = '/products';
+
+  /// Auth / login
+  /// With apiBaseUrl = https://encoder-staging.site/luxurious-skincare-wp/
+  /// this becomes: wp-json/auth/v1/login
+  static const String login = 'wp-json/auth/v1/login';
+
+  /// WooCommerce products base path (without query).
+  /// With apiBaseUrl = .../ this becomes: wp-json/wc/v3/products
+  static const String productsBase = 'wp-json/wc/v3/products';
+
+  /// Dynamic auth query built from WooAuthConfig (updated after login).
+  static String get productsAuthQuery => WooAuthConfig.authQuery;
+
   static const String carts = '/carts';
 
   // Add more base endpoints as needed:

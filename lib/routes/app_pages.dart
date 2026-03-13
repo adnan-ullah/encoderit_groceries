@@ -1,7 +1,11 @@
 import 'package:get/get.dart';
 
-
 import 'nav_shell.dart';
+import '../pages/product_page.dart';
+import '../pages/login_page.dart';
+import '../controllers/product_controller.dart';
+import '../controllers/auth_controller.dart';
+import '../services/app_services.dart';
 import '../pages/home_page.dart';
 import '../pages/category_page.dart';
 import '../pages/cart_page.dart';
@@ -14,6 +18,7 @@ import '../pages/sign_up_page.dart';
 
 class AppRoutes {
   static const root = '/';
+  static const login = '/login';
   static const home = '/home';
   static const todos = '/todos';
   static const products = '/products';
@@ -30,6 +35,15 @@ class AppPages {
   AppPages._();
 
   static final routes = <GetPage>[
+    GetPage(
+      name: AppRoutes.login,
+      page: () => const LoginPage(),
+      binding: BindingsBuilder(() {
+        if (!Get.isRegistered<AuthController>()) {
+          Get.put(AppServices.getIt<AuthController>(), permanent: true);
+        }
+      }),
+    ),
     GetPage(
       name: AppRoutes.search,
       page: () => const SearchPage(),
@@ -59,8 +73,15 @@ class AppPages {
       page: () => const NavShell(),
       participatesInRootNavigator: true,
       children: [
+        // Home shows products list now (Todo API not available on WooCommerce backend)
         GetPage(
           name: AppRoutes.home,
+          page: () => const ProductPage(),
+          binding: BindingsBuilder(() {
+            if (!Get.isRegistered<ProductController>()) {
+              Get.put(AppServices.getIt<ProductController>(), permanent: true);
+            }
+          }),
           page: () => const HomePage(),
         ),
         GetPage(
@@ -87,17 +108,15 @@ class AppPages {
         //     Get.put(AppServices.getIt<TodoController>());
         //   }),
         // ),
-        // GetPage(
-        //   name: AppRoutes.products,
-        //   page: () => const ProductPage(),
-        //   binding: BindingsBuilder(() {
-        //     // Inject controller from get_it - use permanent to keep it in memory
-        //     // Use putIfAbsent to avoid recreating if already exists
-        //     if (!Get.isRegistered<ProductController>()) {
-        //       Get.put(AppServices.getIt<ProductController>(), permanent: true);
-        //     }
-        //   }),
-        // ),
+        GetPage(
+          name: AppRoutes.products,
+          page: () => const ProductPage(),
+          binding: BindingsBuilder(() {
+            if (!Get.isRegistered<ProductController>()) {
+              Get.put(AppServices.getIt<ProductController>(), permanent: true);
+            }
+          }),
+        ),
 
         // GetPage(
         //   name: AppRoutes.settings,
