@@ -672,10 +672,10 @@ class _HomePageState extends State<HomePage> {
                         Positioned(
                           bottom: 8,
                           right: 8,
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () => showProductDetailsSheet(context),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => showProductDetailsSheet(context, product: item),
                               borderRadius: BorderRadius.circular(20),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -873,10 +873,10 @@ class _HomePageState extends State<HomePage> {
                     Positioned(
                       bottom: 8,
                       right: 8,
-                      child: Material(
-                        color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => showProductDetailsSheet(context),
+                    child: Material(
+                      color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => showProductDetailsSheet(context, product: product),
                           borderRadius: BorderRadius.circular(20),
                               child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -1140,10 +1140,10 @@ class _HomePageState extends State<HomePage> {
                       Positioned(
                         bottom: 8,
                         right: 8,
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: () => showProductDetailsSheet(context),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => showProductDetailsSheet(context, product: product),
                             borderRadius: BorderRadius.circular(20),
                             child: Container(
                               padding: const EdgeInsets.symmetric(

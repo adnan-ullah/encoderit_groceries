@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
+import '../models/product/product_model.dart';
 import '../utils/app_theme.dart';
 
-Future<void> showProductDetailsSheet(BuildContext context) async {
+Future<void> showProductDetailsSheet(
+  BuildContext context, {
+  Product? product,
+}) async {
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => const ProductDetailsSheet(),
+    builder: (_) => ProductDetailsSheet(product: product),
   );
 }
 
 class ProductDetailsSheet extends StatefulWidget {
-  const ProductDetailsSheet({super.key});
+  const ProductDetailsSheet({super.key, this.product});
+
+  final Product? product;
 
   @override
   State<ProductDetailsSheet> createState() => _ProductDetailsSheetState();
@@ -26,6 +32,26 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final product = widget.product;
+
+    final name = product?.name ?? 'Overnight Diapers Size 6';
+    final unit = product != null && product.categories.isNotEmpty
+        ? product.categories.first.name
+        : 'Packet';
+    final priceValue = double.tryParse(
+          product?.price ??
+              product?.salePrice ??
+              product?.regularPrice ??
+              '33.25',
+        ) ??
+        33.25;
+    final oldPriceValue = double.tryParse(
+          product?.regularPrice ?? '35.00',
+        ) ??
+        35.00;
+    final description = product?.shortDescription?.isNotEmpty == true
+        ? product!.shortDescription!
+        : 'No job is too big, no pup is too small! Luvs diapers with new Paw Patrol designs have your back and their butts. Luvs now has up to 12 hours of protection, day and night. Our highly trained paws are at your service to help stop diaper leaks quickly.';
 
     return Container(
       width: double.infinity,
@@ -65,7 +91,7 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Overnight Diapers Size 6',
+                          name,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.titleMedium?.copyWith(
@@ -75,7 +101,7 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Packet',
+                          unit,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: AppTheme.textSecondary,
                           ),
@@ -84,7 +110,7 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
                         Row(
                           children: [
                             Text(
-                              '\$33.25',
+                            '\$${priceValue.toStringAsFixed(2)}',
                               style: theme.textTheme.titleMedium?.copyWith(
                                 color: AppTheme.goldPrimary,
                                 fontWeight: FontWeight.w800,
@@ -92,7 +118,7 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              '\$35.00',
+                            '\$${oldPriceValue.toStringAsFixed(2)}',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: AppTheme.textTertiary,
                                 decoration: TextDecoration.lineThrough,
@@ -208,7 +234,7 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
               ),
               ResponsiveHelper.getResponsiveSpacing(context, 16),
               Text(
-                'No job is too big, no pup is too small! Luvs diapers with new Paw Patrol designs have your back and their butts. Luvs now has up to 12 hours of protection, day and night. Our highly trained paws are at your service to help stop diaper leaks quickly.',
+                description,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: AppTheme.textSecondary,
                   height: 1.4,
