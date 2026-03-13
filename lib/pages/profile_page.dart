@@ -30,7 +30,7 @@ class ProfilePage extends StatelessWidget {
         elevation: 0,
         titleSpacing: ResponsiveHelper.getResponsiveWidth(context, 16),
         title: Text(
-          'StoreKing',
+          'Encoder Groceries',
           style: theme.textTheme.titleLarge?.copyWith(
             color: AppTheme.goldPrimary,
             fontWeight: FontWeight.w800,
@@ -60,39 +60,6 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
             ),
-            ResponsiveHelper.getResponsiveSpacing(context, 16),
-            Center(
-              child: Text(
-                'Sign in to see your info',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: AppTheme.textPrimary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            ResponsiveHelper.getResponsiveSpacing(context, 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _AuthButton(
-                    label: 'Sign Up',
-                    background: AppTheme.goldPrimary.withOpacity(0.15),
-                    foreground: AppTheme.goldPrimary,
-                    onTap: () =>
-                        Get.rootDelegate.toNamed(AppRoutes.signUp),
-                  ),
-                ),
-                SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 14)),
-                Expanded(
-                  child: _AuthButton(
-                    label: 'Sign In',
-                    background: AppTheme.goldPrimary,
-                    foreground: Colors.white,
-                    onTap: () {},
-                  ),
-                ),
-              ],
-            ),
             ResponsiveHelper.getResponsiveSpacing(context, 18),
             Divider(color: Colors.grey.shade300, height: 1),
             ..._items.expand((item) sync* {
@@ -104,6 +71,12 @@ class ProfilePage extends StatelessWidget {
               yield Divider(color: Colors.grey.shade200, height: 1);
             }),
             ResponsiveHelper.getResponsiveSpacing(context, 16),
+            _AuthButton(
+              label: 'Sign Out',
+              background: AppTheme.goldPrimary,
+              foreground: Colors.white,
+              onTap: () {},
+            ),
           ],
         ),
       ),

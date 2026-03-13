@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
+import 'package:get/get.dart';
 
+import '../controllers/brand_controller.dart';
+import '../controllers/category_controller.dart';
+import '../controllers/product_controller.dart';
 import '../models/home_models.dart';
 import '../models/product/product_model.dart';
-import '../models/category/category_model.dart';
-import '../models/brand/brand_model.dart';
-import '../controllers/product_controller.dart';
-import '../controllers/category_controller.dart';
-import '../controllers/brand_controller.dart';
 import '../routes/app_pages.dart';
+import '../services/app_services.dart';
 import '../utils/app_theme.dart';
 import 'product_details_page.dart';
 import 'category_details_page.dart';
@@ -23,7 +22,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   static const _banner = HomeBanner(
     title: 'Seasonal',
     highlight: 'Beauty Faves',
@@ -74,19 +72,13 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     _buildBanner(context),
                     ResponsiveHelper.getResponsiveSpacing(context, 24),
-                    _buildSectionHeader(
-                      context,
-                      title: 'Browse by Category',
-                    ),
+                    _buildSectionHeader(context, title: 'Browse by Category'),
                     ResponsiveHelper.getResponsiveSpacing(context, 12),
                     _buildCategoryStrip(context),
                     ResponsiveHelper.getResponsiveSpacing(context, 24),
                     _buildPromoRow(context),
                     ResponsiveHelper.getResponsiveSpacing(context, 24),
-                    _buildSectionHeader(
-                      context,
-                      title: 'Most Popular',
-                    ),
+                    _buildSectionHeader(context, title: 'Most Popular'),
                   ],
                 ),
               ),
@@ -166,9 +158,9 @@ class _HomePageState extends State<HomePage> {
       titleSpacing: ResponsiveHelper.getResponsiveWidth(context, 16),
       title: Text(
         'Encoder Groceries',
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: AppTheme.goldPrimary,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.titleLarge?.copyWith(color: AppTheme.goldPrimary),
       ),
       actions: [
         IconButton(
@@ -191,11 +183,16 @@ class _HomePageState extends State<HomePage> {
         vertical: 16,
       ),
       decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/banner_2.png'),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            Colors.black.withOpacity(0.3),
+            BlendMode.darken,
+          ),
+        ),
         gradient: LinearGradient(
-          colors: [
-            AppTheme.mintBright,
-            AppTheme.cyanBright,
-          ],
+          colors: [AppTheme.mintBright, AppTheme.cyanBright],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -237,9 +234,7 @@ class _HomePageState extends State<HomePage> {
                       TextSpan(text: '${_banner.title} '),
                       TextSpan(
                         text: _banner.highlight,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w900),
                       ),
                     ],
                   ),
@@ -276,22 +271,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
-          Container(
-            width: ResponsiveHelper.getResponsiveWidth(context, 90),
-            height: ResponsiveHelper.getResponsiveHeight(context, 120),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.85),
-              borderRadius: BorderRadius.circular(
-                ResponsiveHelper.getResponsiveRadius(context, 18),
-              ),
-            ),
-            child: const Icon(
-              Icons.local_mall_outlined,
-              size: 46,
-              color: AppTheme.cyanPrimary,
-            ),
-          ),
         ],
       ),
     );
@@ -305,6 +284,14 @@ class _HomePageState extends State<HomePage> {
       width: double.infinity,
       height: ResponsiveHelper.getResponsiveHeight(context, 140),
       decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage('assets/images/banner_3.png'),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(
+            Colors.black.withOpacity(0.1),
+            BlendMode.darken,
+          ),
+        ),
         borderRadius: BorderRadius.circular(radius),
         boxShadow: [
           BoxShadow(
@@ -322,23 +309,6 @@ class _HomePageState extends State<HomePage> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.grey.shade400,
-                          Colors.grey.shade500,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.storefront_outlined,
-                      size: 56,
-                      color: Colors.white.withOpacity(0.3),
-                    ),
-                  ),
                   Positioned(
                     top: 12,
                     left: 12,
@@ -370,9 +340,6 @@ class _HomePageState extends State<HomePage> {
                   horizontal: 16,
                   vertical: 16,
                 ),
-                decoration: BoxDecoration(
-                  color: AppTheme.cyanPale,
-                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -387,8 +354,8 @@ class _HomePageState extends State<HomePage> {
                     ResponsiveHelper.getResponsiveSpacing(context, 12),
                     Material(
                       color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => showProductDetailsSheet(context),
+                      child: InkWell(
+                        onTap: () => showProductDetailsSheet(context),
                         borderRadius: BorderRadius.circular(24),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -420,16 +387,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSectionHeader(
-    BuildContext context, {
-    required String title,
-  }) {
+  Widget _buildSectionHeader(BuildContext context, {required String title}) {
     final theme = Theme.of(context);
     return Text(
       title,
-      style: theme.textTheme.titleLarge?.copyWith(
-        fontWeight: FontWeight.w700,
-      ),
+      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
     );
   }
 
@@ -450,64 +412,60 @@ class _HomePageState extends State<HomePage> {
       }
 
       return SizedBox(
-      height: ResponsiveHelper.getResponsiveHeight(context, 90),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        separatorBuilder: (_, __) =>
-            SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
-        itemBuilder: (context, index) {
-          final category = categories[index];
-          final icon = _categoryIcons[index % _categoryIcons.length];
-          return InkWell(
-            onTap: () {
-              debugPrint('Tapped category (HomePage): ${category.name}');
-              Get.to(() => CategoryDetailsPage(
-                    categoryId: category.id,
-                    categoryName: category.name,
-                  ));
-            },
-            child: Container(
-              width: ResponsiveHelper.getResponsiveWidth(context, 120),
-              padding: ResponsiveHelper.getResponsivePadding(
-                context,
-                horizontal: 12,
-                vertical: 10,
-              ),
-              decoration: BoxDecoration(
-                color: AppTheme.lightSurface,
-                borderRadius: BorderRadius.circular(
-                  ResponsiveHelper.getResponsiveRadius(context, 16),
+        height: ResponsiveHelper.getResponsiveHeight(context, 90),
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: categories.length,
+          separatorBuilder: (_, __) =>
+              SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
+          itemBuilder: (context, index) {
+            final category = categories[index];
+            final icon = _categoryIcons[index % _categoryIcons.length];
+            return InkWell(
+              onTap: () {
+                debugPrint('Tapped category (HomePage): ${category.name}');
+                Get.to(() => CategoryDetailsPage(
+                  categoryId: category.id,
+                  categoryName: category.name,
+                ));
+              },
+              child: Container(
+                width: ResponsiveHelper.getResponsiveWidth(context, 120),
+                padding: ResponsiveHelper.getResponsivePadding(
+                  context,
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.lightSurface,
+                  borderRadius: BorderRadius.circular(
+                    ResponsiveHelper.getResponsiveRadius(context, 16),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundColor: AppTheme.goldPrimary.withOpacity(0.15),
+                      child: Icon(icon, color: AppTheme.goldPrimary, size: 20),
+                    ),
+                    const Spacer(),
+                    Text(
+                      category.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundColor: AppTheme.goldPrimary.withOpacity(0.15),
-                    child: Icon(
-                      icon,
-                      color: AppTheme.goldPrimary,
-                      size: 20,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    category.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.textPrimary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
+            );
+          },
+        ),
       );
     });
   }
@@ -517,7 +475,7 @@ class _HomePageState extends State<HomePage> {
     final radius = ResponsiveHelper.getResponsiveRadius(context, 18);
 
     Widget buildCard({
-      required Color background,
+      required String image,
       required String title,
       required String subtitle,
       required String badge,
@@ -537,7 +495,14 @@ class _HomePageState extends State<HomePage> {
               vertical: 12,
             ),
             decoration: BoxDecoration(
-              color: background,
+              image: DecorationImage(
+                image: AssetImage(image),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.05),
+                  BlendMode.darken,
+                ),
+              ),
               borderRadius: BorderRadius.circular(radius),
             ),
             child: Column(
@@ -577,14 +542,14 @@ class _HomePageState extends State<HomePage> {
     return Row(
       children: [
         buildCard(
-          background: AppTheme.mintPale,
+          image: 'assets/images/offer_banner_3.png',
           title: 'Beauty is\nNow Boarding',
           subtitle: 'Up to 15% Off',
           badge: 'Bring the character',
         ),
         SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
         buildCard(
-          background: AppTheme.cyanPale,
+          image: 'assets/images/offer_banner_2.png',
           title: 'Eat Healthy.\nStay Fit.',
           subtitle: 'Up to 20% Off',
           badge: 'Daily essentials',
@@ -611,7 +576,8 @@ class _HomePageState extends State<HomePage> {
           final unit = item.categories.isNotEmpty
               ? item.categories.first.name
               : 'Piece';
-          final price = double.tryParse(
+          final price =
+              double.tryParse(
                 item.price ?? item.salePrice ?? item.regularPrice ?? '0',
               ) ??
               0;
@@ -656,19 +622,22 @@ class _HomePageState extends State<HomePage> {
                         Positioned(
                           top: 8,
                           right: 8,
-                            child: Icon(
-                              Icons.favorite_border,
-                              color: AppTheme.textSecondary,
-                              size: 20,
-                            ),
+                          child: Icon(
+                            Icons.favorite_border,
+                            color: AppTheme.textSecondary,
+                            size: 20,
+                          ),
                         ),
                         Positioned(
                           bottom: 8,
                           right: 8,
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => showProductDetailsSheet(context, product: item),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => showProductDetailsSheet(
+                                context,
+                                product: item,
+                              ),
                               borderRadius: BorderRadius.circular(20),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
@@ -765,9 +734,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         TextButton(
-          onPressed: () => Get.rootDelegate.toNamed(
-        AppRoutes.offerDetails,
-        ),
+          onPressed: () => Get.rootDelegate.toNamed(AppRoutes.offerDetails),
           style: TextButton.styleFrom(
             backgroundColor: AppTheme.goldPrimary,
             foregroundColor: AppTheme.lightSurface,
@@ -778,10 +745,7 @@ class _HomePageState extends State<HomePage> {
           ),
           child: Text(
             'See All',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
           ),
         ),
       ],
@@ -801,20 +765,23 @@ class _HomePageState extends State<HomePage> {
         mainAxisSpacing: 12,
         childAspectRatio: 0.72,
       ),
-      itemCount:
-          products.where((p) => p.onSale == true).take(8).toList().length,
+      itemCount: products
+          .where((p) => p.onSale == true)
+          .take(8)
+          .toList()
+          .length,
       itemBuilder: (context, index) {
-        final flashList =
-            products.where((p) => p.onSale == true).take(8).toList();
+        final flashList = products
+            .where((p) => p.onSale == true)
+            .take(8)
+            .toList();
         final product = flashList[index];
         final unit = product.categories.isNotEmpty
             ? product.categories.first.name
             : 'Piece';
-        final price = double.tryParse(
-              product.price ??
-                  product.salePrice ??
-                  product.regularPrice ??
-                  '0',
+        final price =
+            double.tryParse(
+              product.price ?? product.salePrice ?? product.regularPrice ?? '0',
             ) ??
             0;
         final oldPrice = double.tryParse(product.regularPrice ?? '0') ?? 0;
@@ -847,31 +814,34 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       child: Center(
-                          child: Icon(
-                            Icons.image_outlined,
-                            size: 48,
-                            color: AppTheme.textTertiary,
-                          ),
+                        child: Icon(
+                          Icons.image_outlined,
+                          size: 48,
+                          color: AppTheme.textTertiary,
+                        ),
                       ),
                     ),
-                        Positioned(
+                    Positioned(
                       top: 8,
                       right: 8,
-                          child: Icon(
-                            Icons.favorite_border,
-                            color: AppTheme.textSecondary,
-                            size: 20,
-                          ),
+                      child: Icon(
+                        Icons.favorite_border,
+                        color: AppTheme.textSecondary,
+                        size: 20,
+                      ),
                     ),
                     Positioned(
                       bottom: 8,
                       right: 8,
-                    child: Material(
-                      color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () => showProductDetailsSheet(context, product: product),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => showProductDetailsSheet(
+                            context,
+                            product: product,
+                          ),
                           borderRadius: BorderRadius.circular(20),
-                              child: Container(
+                          child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 6,
@@ -970,6 +940,7 @@ class _HomePageState extends State<HomePage> {
     const cardWidth = 110.0;
     const cardHeight = 100.0;
     final controller = Get.find<BrandController>();
+    controller.loadItems();
 
     return Obx(() {
       final brands = controller.items;
@@ -978,263 +949,255 @@ class _HomePageState extends State<HomePage> {
       }
 
       return SizedBox(
-      height: ResponsiveHelper.getResponsiveHeight(context, cardHeight),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: brands.length,
-        separatorBuilder: (_, __) =>
-            SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
-        itemBuilder: (context, index) {
-          final brand = brands[index];
-          return InkWell(
-            onTap: () => Get.rootDelegate.toNamed(
-              AppRoutes.categoryDetails,
-              arguments: brand,
-            ),
-            child: SizedBox(
-              width: ResponsiveHelper.getResponsiveWidth(context, cardWidth),
-              child: Container(
-                padding: ResponsiveHelper.getResponsivePadding(
-                  context,
-                  horizontal: 12,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.lightSurface,
-                  borderRadius: BorderRadius.circular(radius),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Center(
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: AppTheme.goldPrimary.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: Text(
-                              brand.name.isNotEmpty
-                                  ? brand.name.substring(0, 1).toUpperCase()
-                                  : '?',
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                color: AppTheme.goldPrimary,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      brand.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textPrimary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
+        height: ResponsiveHelper.getResponsiveHeight(context, cardHeight),
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: brands.length,
+          separatorBuilder: (_, __) =>
+              SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
+          itemBuilder: (context, index) {
+            final brand = brands[index];
+            return InkWell(
+              onTap: () => Get.rootDelegate.toNamed(
+                AppRoutes.categoryDetails,
+                arguments: brand,
               ),
-            ),
-          );
-        },
-      ),
-      );
-    });
-  }
-
-  SliverGrid _buildPopularGrid(
-    BuildContext context,
-    List<Product> products,
-  ) {
-    final theme = Theme.of(context);
-    final radius = ResponsiveHelper.getResponsiveRadius(context, 16);
-
-    return SliverGrid(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          final popularList = products.take(8).toList();
-          final product = popularList[index];
-          final subtitle = product.categories.isNotEmpty
-              ? product.categories.first.name
-              : '';
-          final price = double.tryParse(
-                product.price ??
-                    product.salePrice ??
-                    product.regularPrice ??
-                    '0',
-              ) ??
-              0;
-          final oldPrice = double.tryParse(product.regularPrice ?? '0');
-          return Container(
-            decoration: BoxDecoration(
-              color: AppTheme.lightSurface,
-              borderRadius: BorderRadius.circular(radius),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(
-                  flex: 5,
-                  child: Stack(
-                    alignment: Alignment.center,
+              child: SizedBox(
+                width: ResponsiveHelper.getResponsiveWidth(context, cardWidth),
+                child: Container(
+                  padding: ResponsiveHelper.getResponsivePadding(
+                    context,
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppTheme.lightSurface,
+                    borderRadius: BorderRadius.circular(radius),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AppTheme.lightCard,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(radius),
-                            topRight: Radius.circular(radius),
-                          ),
-                        ),
+                      Expanded(
                         child: Center(
-                          child: Icon(
-                            Icons.image_outlined,
-                            size: 48,
-                            color: AppTheme.textTertiary,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Icon(
-                          false
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: false
-                              ? AppTheme.goldSecondary
-                              : AppTheme.textSecondary,
-                          size: 20,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 8,
-                        right: 8,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () => showProductDetailsSheet(context, product: product),
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppTheme.goldPrimary,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.shopping_bag_outlined,
-                                    size: 14,
-                                    color: AppTheme.lightSurface,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Add',
-                                    style: theme.textTheme.labelSmall
-                                        ?.copyWith(
-                                          color: AppTheme.lightSurface,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                  ),
-                                ],
+                          child: Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: AppTheme.goldPrimary.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Text(
+                                brand.name.isNotEmpty
+                                    ? brand.name.substring(0, 1).toUpperCase()
+                                    : '?',
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  color: AppTheme.goldPrimary,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
                             ),
                           ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        brand.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppTheme.textPrimary,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Expanded(
-                  flex: 4,
-                  child: Padding(
-                    padding: ResponsiveHelper.getResponsivePadding(
-                      context,
-                      horizontal: 10,
-                      vertical: 8,
+              ),
+            );
+          },
+        ),
+      );
+    });
+  }
+
+  SliverGrid _buildPopularGrid(BuildContext context, List<Product> products) {
+    final theme = Theme.of(context);
+    final radius = ResponsiveHelper.getResponsiveRadius(context, 16);
+
+    return SliverGrid(
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final popularList = products.take(8).toList();
+        final product = popularList[index];
+        final subtitle = product.categories.isNotEmpty
+            ? product.categories.first.name
+            : '';
+        final price =
+            double.tryParse(
+              product.price ?? product.salePrice ?? product.regularPrice ?? '0',
+            ) ??
+            0;
+        final oldPrice = double.tryParse(product.regularPrice ?? '0');
+        return Container(
+          decoration: BoxDecoration(
+            color: AppTheme.lightSurface,
+            borderRadius: BorderRadius.circular(radius),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 5,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.lightCard,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(radius),
+                          topRight: Radius.circular(radius),
+                        ),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.image_outlined,
+                          size: 48,
+                          color: AppTheme.textTertiary,
+                        ),
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          product.name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textPrimary,
-                            fontWeight: FontWeight.w500,
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Icon(
+                        false ? Icons.favorite : Icons.favorite_border,
+                        color: false
+                            ? AppTheme.goldSecondary
+                            : AppTheme.textSecondary,
+                        size: 20,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => showProductDetailsSheet(
+                            context,
+                            product: product,
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppTheme.goldPrimary,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.shopping_bag_outlined,
+                                  size: 14,
+                                  color: AppTheme.lightSurface,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Add',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: AppTheme.lightSurface,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 4,
+                child: Padding(
+                  padding: ResponsiveHelper.getResponsivePadding(
+                    context,
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
                       Text(
-                          subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: AppTheme.textTertiary,
-                          ),
+                        product.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: AppTheme.textPrimary,
+                          fontWeight: FontWeight.w500,
                         ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
+                      ),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: AppTheme.textTertiary,
+                        ),
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            '\$${price.toStringAsFixed(2)}',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: AppTheme.textPrimary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          if (oldPrice != null && oldPrice > 0) ...[
+                            const SizedBox(width: 6),
                             Text(
-                              '\$${price.toStringAsFixed(2)}',
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                color: AppTheme.textPrimary,
-                                fontWeight: FontWeight.w700,
+                              '\$${oldPrice.toStringAsFixed(2)}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppTheme.error,
+                                decoration: TextDecoration.lineThrough,
                               ),
                             ),
-                            if (oldPrice != null && oldPrice > 0) ...[
-                              const SizedBox(width: 6),
-                              Text(
-                                '\$${oldPrice.toStringAsFixed(2)}',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: AppTheme.error,
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                              ),
-                            ],
                           ],
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          );
-        },
-        childCount: products.length.clamp(0, 8),
-      ),
+              ),
+            ],
+          ),
+        );
+      }, childCount: products.length.clamp(0, 8)),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
@@ -1244,4 +1207,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
