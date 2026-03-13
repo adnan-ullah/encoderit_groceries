@@ -5,6 +5,8 @@ import 'package:get_it/get_it.dart';
 
 import '../di/product/product_di.dart';
 import '../di/auth/auth_di.dart';
+import '../di/category/category_di.dart';
+import '../di/brand/brand_di.dart';
 
 
 /// App Services using get_it for dependency injection
@@ -44,6 +46,8 @@ class AppServices {
     // Setup domain layer services (feature-wise)
     await setupAuthDomainServices();
     await setupProductDomainServices();
+    await setupCategoryDomainServices();
+    await setupBrandDomainServices();
     // await setupCartDomainServices();
     // setupFavoritesDomainServices();
     // setupSearchDomainServices();

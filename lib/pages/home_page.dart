@@ -4,10 +4,15 @@ import 'package:gems_responsive/gems_responsive.dart';
 
 import '../models/home_models.dart';
 import '../models/product/product_model.dart';
+import '../models/category/category_model.dart';
+import '../models/brand/brand_model.dart';
 import '../controllers/product_controller.dart';
+import '../controllers/category_controller.dart';
+import '../controllers/brand_controller.dart';
 import '../routes/app_pages.dart';
 import '../utils/app_theme.dart';
 import 'product_details_page.dart';
+import '../services/app_services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,20 +31,13 @@ class _HomePageState extends State<HomePage> {
     badgeLabel: 'BIG SALE',
   );
 
-  static const _categories = <HomeCategory>[
-    HomeCategory(name: 'Fresh Vegetables', icon: Icons.eco_outlined),
-    HomeCategory(name: 'Fresh Fruits', icon: Icons.local_grocery_store_outlined),
-    HomeCategory(name: 'Nuts & Dry Fruits', icon: Icons.spa_outlined),
-    HomeCategory(name: 'Chicken & Meat', icon: Icons.set_meal_outlined),
-    HomeCategory(name: 'Bakery', icon: Icons.bakery_dining_outlined),
-  ];
-
-  static const _popularBrands = <PopularBrand>[
-    PopularBrand(name: 'Dove'),
-    PopularBrand(name: 'Great Value'),
-    PopularBrand(name: 'Nature Valley'),
-    PopularBrand(name: "Johnson's"),
-    PopularBrand(name: 'Colgate'),
+  // Static UX scaffolding (icons only) – names now come from API-backed models.
+  static const _categoryIcons = <IconData>[
+    Icons.eco_outlined,
+    Icons.local_grocery_store_outlined,
+    Icons.spa_outlined,
+    Icons.set_meal_outlined,
+    Icons.bakery_dining_outlined,
   ];
 
   // Local state lists for home sections, populated via ProductController APIs.
@@ -50,8 +48,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    final controller = Get.find<ProductController>();
-    _loadHomeData(controller);
+    final productController = Get.find<ProductController>();
+    final categoryController = Get.find<CategoryController>();
+    final brandController = Get.find<BrandController>();
+
+    _loadHomeData(productController);
+    categoryController.loadItems();
+    brandController.loadItems();
   }
 
   Future<void> _loadHomeData(ProductController controller) async {
@@ -449,15 +452,23 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCategoryStrip(BuildContext context) {
-    return SizedBox(
+    final controller = Get.find<CategoryController>();
+    return Obx(() {
+      final categories = controller.items;
+      if (categories.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return SizedBox(
       height: ResponsiveHelper.getResponsiveHeight(context, 90),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: _categories.length,
+        itemCount: categories.length,
         separatorBuilder: (_, __) =>
             SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
         itemBuilder: (context, index) {
-          final category = _categories[index];
+          final category = categories[index];
+          final icon = _categoryIcons[index % _categoryIcons.length];
           return InkWell(
             onTap: () => Get.rootDelegate.toNamed(
               AppRoutes.categoryDetails,
@@ -483,7 +494,7 @@ class _HomePageState extends State<HomePage> {
                     radius: 18,
                     backgroundColor: AppTheme.goldPrimary.withOpacity(0.15),
                     child: Icon(
-                      category.icon,
+                      icon,
                       color: AppTheme.goldPrimary,
                       size: 20,
                     ),
@@ -504,7 +515,8 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
-    );
+      );
+    });
   }
 
   Widget _buildPromoRow(BuildContext context) {
@@ -964,16 +976,23 @@ class _HomePageState extends State<HomePage> {
     final radius = ResponsiveHelper.getResponsiveRadius(context, 16);
     const cardWidth = 110.0;
     const cardHeight = 100.0;
+    final controller = Get.find<BrandController>();
 
-    return SizedBox(
+    return Obx(() {
+      final brands = controller.items;
+      if (brands.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return SizedBox(
       height: ResponsiveHelper.getResponsiveHeight(context, cardHeight),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: _popularBrands.length,
+        itemCount: brands.length,
         separatorBuilder: (_, __) =>
             SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
         itemBuilder: (context, index) {
-          final brand = _popularBrands[index];
+          final brand = brands[index];
           return InkWell(
             onTap: () => Get.rootDelegate.toNamed(
               AppRoutes.categoryDetails,
@@ -1042,7 +1061,8 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
-    );
+      );
+    });
   }
 
   SliverGrid _buildPopularGrid(

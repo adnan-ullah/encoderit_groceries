@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../controllers/brand_controller.dart';
+import '../controllers/category_controller.dart';
 import 'nav_shell.dart';
 import '../pages/product_page.dart';
 import '../pages/login_page.dart';
@@ -80,6 +82,13 @@ class AppPages {
             if (!Get.isRegistered<ProductController>()) {
               Get.put(AppServices.getIt<ProductController>(), permanent: true);
             }
+            if (!Get.isRegistered<CategoryController>()) {
+              Get.put(AppServices.getIt<CategoryController>(), permanent: true);
+            }
+            if (!Get.isRegistered<BrandController>()) {
+              Get.put(AppServices.getIt<BrandController>(), permanent: true);
+            }
+
           }),
           page: () => const HomePage(),
         ),
