@@ -2,12 +2,13 @@ import 'package:get/get.dart';
 
 import '../controllers/brand_controller.dart';
 import '../controllers/category_controller.dart';
+import '../controllers/product_controller.dart';
+import '../controllers/auth_controller.dart';
+import '../models/category/category_model.dart';
+import '../services/app_services.dart';
 import 'nav_shell.dart';
 import '../pages/product_page.dart';
 import '../pages/login_page.dart';
-import '../controllers/product_controller.dart';
-import '../controllers/auth_controller.dart';
-import '../services/app_services.dart';
 import '../pages/home_page.dart';
 import '../pages/category_page.dart';
 import '../pages/cart_page.dart';
@@ -58,8 +59,20 @@ class AppPages {
       name: AppRoutes.categoryDetails,
       page: () {
         final arg = Get.arguments;
-        final name = (arg is String && arg.trim().isNotEmpty) ? arg : 'Category';
-        return CategoryDetailsPage(categoryName: name);
+        int? categoryId;
+        String categoryName = 'Category';
+
+        if (arg is Category) {
+          categoryId = arg.id;
+          categoryName = arg.name;
+        } else if (arg is String && arg.trim().isNotEmpty) {
+          categoryName = arg;
+        }
+
+        return CategoryDetailsPage(
+          categoryId: categoryId,
+          categoryName: categoryName,
+        );
       },
     ),
     GetPage(
@@ -79,8 +92,15 @@ class AppPages {
         GetPage(
           name: AppRoutes.home,
           binding: BindingsBuilder(() {
-
-
+            if (!Get.isRegistered<ProductController>()) {
+              Get.put(AppServices.getIt<ProductController>(), permanent: true);
+            }
+            if (!Get.isRegistered<CategoryController>()) {
+              Get.put(AppServices.getIt<CategoryController>(), permanent: true);
+            }
+            if (!Get.isRegistered<BrandController>()) {
+              Get.put(AppServices.getIt<BrandController>(), permanent: true);
+            }
           }),
           page: () => const HomePage(),
         ),

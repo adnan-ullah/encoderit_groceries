@@ -14,6 +14,12 @@ class CategoryController extends BaseListController<Category>
   });
 
   @override
+  void onReady() {
+    super.onReady();
+    loadItems();
+  }
+
+  @override
   Future<void> loadItems() async {
     items.clear();
     await handleListResult(() async {

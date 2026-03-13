@@ -10,18 +10,15 @@ import '../routes/app_pages.dart';
 class CategoryPage extends StatelessWidget {
   const CategoryPage({super.key});
 
-  static const _fallbackCategories = <String>[
-    'Food',
-    'Cleaning Supplies',
-    'Personal Care',
-    'Health & Wellness',
-    'Baby Care',
-    'Home & Kitchen',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<CategoryController>();
+
+    if (!controller.isLoading.value && controller.items.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.loadItems();
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -45,12 +42,30 @@ class CategoryPage extends StatelessWidget {
       ),
       body: SafeArea(
         child: Obx(() {
-          final categories = controller.items;
-          final bool hasDynamic = categories.isNotEmpty;
+          // Extra safety: ensure we only render unique category names
+          final byName = <String, Category>{};
+          for (final c in controller.items) {
+            final key = c.name.trim().toLowerCase();
+            if (key.isNotEmpty) {
+              byName[key] = c;
+            }
+          }
+          final categories = byName.values.toList();
 
-          // Use dynamic categories when available, otherwise fall back to static list.
-          final int itemCount =
-              hasDynamic ? categories.length : _fallbackCategories.length;
+          if (controller.isLoading.value && categories.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (categories.isEmpty) {
+            return Center(
+              child: Text(
+                'No categories found.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppTheme.textSecondary,
+                    ),
+              ),
+            );
+          }
 
           return ListView.separated(
             padding: ResponsiveHelper.getResponsivePadding(
@@ -58,28 +73,18 @@ class CategoryPage extends StatelessWidget {
               horizontal: 16,
               vertical: 10,
             ),
-            itemCount: itemCount,
+            itemCount: categories.length,
             separatorBuilder: (context, index) => Divider(
               height: ResponsiveHelper.getResponsiveHeight(context, 1),
               color: Colors.grey.shade300,
             ),
             itemBuilder: (context, index) {
-              final String title;
-              final Category? categoryArg;
-
-              if (hasDynamic) {
-                final c = categories[index];
-                title = c.name;
-                categoryArg = c;
-              } else {
-                title = _fallbackCategories[index];
-                categoryArg = null;
-              }
+              final c = categories[index];
 
               return InkWell(
                 onTap: () => Get.rootDelegate.toNamed(
                   AppRoutes.categoryDetails,
-                  arguments: categoryArg?.name ?? title,
+                  arguments: c,
                 ),
                 borderRadius: BorderRadius.circular(
                   ResponsiveHelper.getResponsiveRadius(context, 12),
@@ -93,7 +98,7 @@ class CategoryPage extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          title,
+                          c.name,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium

@@ -43,14 +43,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    if (!Get.isRegistered<ProductController>()) {
-      Get.put(AppServices.getIt<ProductController>(), permanent: true);
-    }
-    if (!Get.isRegistered<CategoryController>()) {
-      Get.put(AppServices.getIt<CategoryController>(), permanent: true);
-    }
-    if (!Get.isRegistered<BrandController>()) {
-      Get.put(AppServices.getIt<BrandController>(), permanent: true);
+    // Ensure categories are loaded for the home "Browse by Category" strip.
+    final categoryController = Get.find<CategoryController>();
+    if (!categoryController.isLoading.value &&
+        categoryController.items.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        categoryController.loadItems();
+      });
     }
   }
 
@@ -435,10 +434,16 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCategoryStrip(BuildContext context) {
     final controller = Get.find<CategoryController>();
-    controller.loadItems();
-
     return Obx(() {
-      final categories = controller.items;
+      // Extra safety: ensure we only render unique category names
+      final byName = <String, Category>{};
+      for (final c in controller.items) {
+        final key = c.name.trim().toLowerCase();
+        if (key.isNotEmpty) {
+          byName[key] = c;
+        }
+      }
+      final categories = byName.values.toList();
       if (categories.isEmpty) {
         return const SizedBox.shrink();
       }
@@ -961,7 +966,6 @@ class _HomePageState extends State<HomePage> {
     const cardWidth = 110.0;
     const cardHeight = 100.0;
     final controller = Get.find<BrandController>();
-    controller.loadItems();
 
     return Obx(() {
       final brands = controller.items;
