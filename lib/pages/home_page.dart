@@ -3,12 +3,20 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../models/home_models.dart';
+import '../models/product/product_model.dart';
+import '../controllers/product_controller.dart';
 import '../routes/app_pages.dart';
 import '../utils/app_theme.dart';
 import 'product_details_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
 
   static const _banner = HomeBanner(
     title: 'Seasonal',
@@ -26,88 +34,6 @@ class HomePage extends StatelessWidget {
     HomeCategory(name: 'Bakery', icon: Icons.bakery_dining_outlined),
   ];
 
-  static const _popularProducts = <PopularProduct>[
-    PopularProduct(
-      name: 'Organic Baby Diapers',
-      subtitle: 'Size 3 • 54 pcs',
-      price: 18.99,
-      oldPrice: 24.99,
-      isFavorite: true,
-    ),
-    PopularProduct(
-      name: 'Fresh White Lilies',
-      subtitle: 'Bouquet • 12 stems',
-      price: 12.49,
-    ),
-    PopularProduct(
-      name: 'Almond & Berry Mix',
-      subtitle: '500g • Premium Pack',
-      price: 9.99,
-      oldPrice: 13.49,
-    ),
-    PopularProduct(
-      name: 'Whole Wheat Bread',
-      subtitle: 'Healthy Bakery',
-      price: 3.29,
-    ),
-  ];
-
-  static const _trendingItems = <TrendingItem>[
-    TrendingItem(
-      name: '12 Piece Kitchen Set Plastic',
-      unit: 'Piece',
-      price: 330.00,
-      isFavorite: false,
-    ),
-    TrendingItem(
-      name: 'Super Food Supplement',
-      unit: 'Piece',
-      price: 380.00,
-      isFavorite: true,
-    ),
-    TrendingItem(
-      name: 'Organic Honey Jar',
-      unit: 'Piece',
-      price: 12.99,
-    ),
-    TrendingItem(
-      name: 'Premium Olive Oil',
-      unit: 'Bottle',
-      price: 24.50,
-    ),
-  ];
-
-  static const _flashSaleProducts = <FlashSaleProduct>[
-    FlashSaleProduct(
-      name: 'Mainstays 2 QT Slow Cooker',
-      unit: 'Piece',
-      price: 270.00,
-      oldPrice: 450.00,
-      isFavorite: false,
-    ),
-    FlashSaleProduct(
-      name: '18 Piece Non-stick Cookware',
-      unit: 'Piece',
-      price: 308.00,
-      oldPrice: 440.00,
-      isFavorite: true,
-    ),
-    FlashSaleProduct(
-      name: 'New Baby Boy Essentials',
-      unit: 'Packet',
-      price: 43.20,
-      oldPrice: 45.00,
-      isFavorite: false,
-    ),
-    FlashSaleProduct(
-      name: 'Silicone Material Newborn Essentials',
-      unit: 'Packet',
-      price: 42.75,
-      oldPrice: 45.00,
-      isFavorite: false,
-    ),
-  ];
-
   static const _popularBrands = <PopularBrand>[
     PopularBrand(name: 'Dove'),
     PopularBrand(name: 'Great Value'),
@@ -115,6 +41,40 @@ class HomePage extends StatelessWidget {
     PopularBrand(name: "Johnson's"),
     PopularBrand(name: 'Colgate'),
   ];
+
+  // Local state lists for home sections, populated via ProductController APIs.
+  final List<Product> _mostPopularProducts = [];
+  final List<Product> _trendingProducts = [];
+  final List<Product> _flashSaleProducts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    final controller = Get.find<ProductController>();
+    _loadHomeData(controller);
+  }
+
+  Future<void> _loadHomeData(ProductController controller) async {
+    try {
+      final sections = await controller.loadHomeSections();
+      setState(() {
+        _mostPopularProducts
+          ..clear()
+          ..addAll(sections.mostPopular);
+        _flashSaleProducts
+          ..clear()
+          ..addAll(sections.flashSale);
+      });
+
+      setState(() {
+        _trendingProducts
+          ..clear()
+          ..addAll(sections.trending);
+      });
+    } catch (_) {
+      // Ignore errors here; individual sections will just show empty state
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +118,10 @@ class HomePage extends StatelessWidget {
                 horizontal: 16,
                 vertical: 8,
               ),
-              sliver: _buildPopularGrid(context),
+              sliver: _buildPopularGrid(
+                context,
+                _mostPopularProducts,
+              ),
             ),
             SliverToBoxAdapter(
               child: Padding(
@@ -182,11 +145,17 @@ class HomePage extends StatelessWidget {
                   children: [
                     _buildSectionHeader(context, title: 'Trending Items'),
                     ResponsiveHelper.getResponsiveSpacing(context, 12),
-                    _buildTrendingStrip(context),
+                    _buildTrendingStrip(
+                      context,
+                      _trendingProducts,
+                    ),
                     ResponsiveHelper.getResponsiveSpacing(context, 24),
                     _buildFlashSaleHeader(context),
                     ResponsiveHelper.getResponsiveSpacing(context, 12),
-                    _buildFlashSaleGrid(context),
+                    _buildFlashSaleGrid(
+                      context,
+                      _flashSaleProducts,
+                    ),
                     ResponsiveHelper.getResponsiveSpacing(context, 24),
                     _buildSectionHeader(context, title: 'Popular Brands'),
                     ResponsiveHelper.getResponsiveSpacing(context, 12),
@@ -619,7 +588,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildTrendingStrip(BuildContext context) {
+  Widget _buildTrendingStrip(BuildContext context, List<Product> products) {
     final theme = Theme.of(context);
     final radius = ResponsiveHelper.getResponsiveRadius(context, 16);
     const cardWidth = 160.0;
@@ -629,11 +598,18 @@ class HomePage extends StatelessWidget {
       height: ResponsiveHelper.getResponsiveHeight(context, cardHeight),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: _trendingItems.length,
+        itemCount: products.length.clamp(0, 8),
         separatorBuilder: (_, __) =>
             SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
         itemBuilder: (context, index) {
-          final item = _trendingItems[index];
+          final item = products[index];
+          final unit = item.categories.isNotEmpty
+              ? item.categories.first.name
+              : 'Piece';
+          final price = double.tryParse(
+                item.price ?? item.salePrice ?? item.regularPrice ?? '0',
+              ) ??
+              0;
           return SizedBox(
             width: ResponsiveHelper.getResponsiveWidth(context, cardWidth),
             child: Container(
@@ -675,15 +651,11 @@ class HomePage extends StatelessWidget {
                         Positioned(
                           top: 8,
                           right: 8,
-                          child: Icon(
-                            item.isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: item.isFavorite
-                                ? AppTheme.goldSecondary
-                                : AppTheme.textSecondary,
-                            size: 20,
-                          ),
+                            child: Icon(
+                              Icons.favorite_border,
+                              color: AppTheme.textSecondary,
+                              size: 20,
+                            ),
                         ),
                         Positioned(
                           bottom: 8,
@@ -750,13 +722,13 @@ class HomePage extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            item.unit,
+                            unit,
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: AppTheme.textTertiary,
                             ),
                           ),
                           Text(
-                            '\$${item.price.toStringAsFixed(2)}',
+                            '\$${price.toStringAsFixed(2)}',
                             style: theme.textTheme.titleSmall?.copyWith(
                               color: AppTheme.goldPrimary,
                               fontWeight: FontWeight.w700,
@@ -811,7 +783,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildFlashSaleGrid(BuildContext context) {
+  Widget _buildFlashSaleGrid(BuildContext context, List<Product> products) {
     final theme = Theme.of(context);
     final radius = ResponsiveHelper.getResponsiveRadius(context, 16);
 
@@ -824,9 +796,23 @@ class HomePage extends StatelessWidget {
         mainAxisSpacing: 12,
         childAspectRatio: 0.72,
       ),
-      itemCount: _flashSaleProducts.length,
+      itemCount:
+          products.where((p) => p.onSale == true).take(8).toList().length,
       itemBuilder: (context, index) {
-        final product = _flashSaleProducts[index];
+        final flashList =
+            products.where((p) => p.onSale == true).take(8).toList();
+        final product = flashList[index];
+        final unit = product.categories.isNotEmpty
+            ? product.categories.first.name
+            : 'Piece';
+        final price = double.tryParse(
+              product.price ??
+                  product.salePrice ??
+                  product.regularPrice ??
+                  '0',
+            ) ??
+            0;
+        final oldPrice = double.tryParse(product.regularPrice ?? '0') ?? 0;
         return Container(
           decoration: BoxDecoration(
             color: AppTheme.lightSurface,
@@ -856,25 +842,21 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                       child: Center(
-                        child: Icon(
-                          Icons.image_outlined,
-                          size: 48,
-                          color: AppTheme.textTertiary,
-                        ),
+                          child: Icon(
+                            Icons.image_outlined,
+                            size: 48,
+                            color: AppTheme.textTertiary,
+                          ),
                       ),
                     ),
-                    Positioned(
+                        Positioned(
                       top: 8,
                       right: 8,
-                      child: Icon(
-                        product.isFavorite
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color: product.isFavorite
-                            ? AppTheme.goldSecondary
-                            : AppTheme.textSecondary,
-                        size: 20,
-                      ),
+                          child: Icon(
+                            Icons.favorite_border,
+                            color: AppTheme.textSecondary,
+                            size: 20,
+                          ),
                     ),
                     Positioned(
                       bottom: 8,
@@ -940,7 +922,7 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        product.unit,
+                        unit,
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: AppTheme.textTertiary,
                         ),
@@ -950,7 +932,7 @@ class HomePage extends StatelessWidget {
                         textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(
-                            '\$${product.price.toStringAsFixed(2)}',
+                            '\$${price.toStringAsFixed(2)}',
                             style: theme.textTheme.titleSmall?.copyWith(
                               color: AppTheme.textPrimary,
                               fontWeight: FontWeight.w700,
@@ -958,7 +940,7 @@ class HomePage extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            '\$${product.oldPrice.toStringAsFixed(2)}',
+                            '\$${oldPrice.toStringAsFixed(2)}',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: AppTheme.error,
                               decoration: TextDecoration.lineThrough,
@@ -1063,14 +1045,29 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  SliverGrid _buildPopularGrid(BuildContext context) {
+  SliverGrid _buildPopularGrid(
+    BuildContext context,
+    List<Product> products,
+  ) {
     final theme = Theme.of(context);
     final radius = ResponsiveHelper.getResponsiveRadius(context, 16);
 
     return SliverGrid(
       delegate: SliverChildBuilderDelegate(
         (context, index) {
-          final product = _popularProducts[index];
+          final popularList = products.take(8).toList();
+          final product = popularList[index];
+          final subtitle = product.categories.isNotEmpty
+              ? product.categories.first.name
+              : '';
+          final price = double.tryParse(
+                product.price ??
+                    product.salePrice ??
+                    product.regularPrice ??
+                    '0',
+              ) ??
+              0;
+          final oldPrice = double.tryParse(product.regularPrice ?? '0');
           return Container(
             decoration: BoxDecoration(
               color: AppTheme.lightSurface,
@@ -1111,10 +1108,10 @@ class HomePage extends StatelessWidget {
                         top: 8,
                         right: 8,
                         child: Icon(
-                          product.isFavorite
+                          false
                               ? Icons.favorite
                               : Icons.favorite_border,
-                          color: product.isFavorite
+                          color: false
                               ? AppTheme.goldSecondary
                               : AppTheme.textSecondary,
                           size: 20,
@@ -1184,8 +1181,8 @@ class HomePage extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        Text(
-                          product.subtitle,
+                      Text(
+                          subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.labelSmall?.copyWith(
@@ -1197,16 +1194,16 @@ class HomePage extends StatelessWidget {
                           textBaseline: TextBaseline.alphabetic,
                           children: [
                             Text(
-                              '\$${product.price.toStringAsFixed(2)}',
+                              '\$${price.toStringAsFixed(2)}',
                               style: theme.textTheme.titleSmall?.copyWith(
                                 color: AppTheme.textPrimary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            if (product.oldPrice != null) ...[
+                            if (oldPrice != null && oldPrice > 0) ...[
                               const SizedBox(width: 6),
                               Text(
-                                '\$${product.oldPrice!.toStringAsFixed(2)}',
+                                '\$${oldPrice.toStringAsFixed(2)}',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: AppTheme.error,
                                   decoration: TextDecoration.lineThrough,
@@ -1223,7 +1220,7 @@ class HomePage extends StatelessWidget {
             ),
           );
         },
-        childCount: _popularProducts.length,
+        childCount: products.length.clamp(0, 8),
       ),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,

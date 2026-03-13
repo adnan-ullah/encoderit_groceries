@@ -60,6 +60,40 @@ class ProductController extends BaseListController<Product>
     );
   }
 
+  /// Load and prepare sections for the Home page using existing API methods.
+  /// - Most Popular & Flash Sale: best-selling products
+  /// - Trending: featured products
+  Future<HomeProductSections> loadHomeSections() async {
+    // 1) Best selling -> Most Popular + Flash Sale
+    await loadBestSelling();
+    final bestSelling = distinctById(items);
+
+    // 2) Featured -> Trending
+    await loadFeatured();
+    final featured = distinctById(items);
+
+    // 3) Restore default list for other parts of the app
+    await loadItems();
+
+    return HomeProductSections(
+      mostPopular: bestSelling,
+      flashSale: bestSelling,
+      trending: featured,
+    );
+  }
+
+  /// Helper: remove duplicate products by id while preserving order.
+  List<Product> distinctById(List<Product> products) {
+    final seen = <int>{};
+    final result = <Product>[];
+    for (final p in products) {
+      if (seen.add(p.id)) {
+        result.add(p);
+      }
+    }
+    return result;
+  }
+
   Future<void> loadOrdered({
     String orderBy = 'date',
     String order = 'asc',
@@ -69,5 +103,17 @@ class ProductController extends BaseListController<Product>
       () => repository.getProductsOrdered(orderBy: orderBy, order: order),
     );
   }
+}
+
+class HomeProductSections {
+  const HomeProductSections({
+    required this.mostPopular,
+    required this.trending,
+    required this.flashSale,
+  });
+
+  final List<Product> mostPopular;
+  final List<Product> trending;
+  final List<Product> flashSale;
 }
 
