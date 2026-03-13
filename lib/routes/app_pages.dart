@@ -79,15 +79,7 @@ class AppPages {
         GetPage(
           name: AppRoutes.home,
           binding: BindingsBuilder(() {
-            if (!Get.isRegistered<ProductController>()) {
-              Get.put(AppServices.getIt<ProductController>(), permanent: true);
-            }
-            if (!Get.isRegistered<CategoryController>()) {
-              Get.put(AppServices.getIt<CategoryController>(), permanent: true);
-            }
-            if (!Get.isRegistered<BrandController>()) {
-              Get.put(AppServices.getIt<BrandController>(), permanent: true);
-            }
+
 
           }),
           page: () => const HomePage(),

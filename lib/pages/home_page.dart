@@ -40,47 +40,23 @@ class _HomePageState extends State<HomePage> {
     Icons.bakery_dining_outlined,
   ];
 
-  // Local state lists for home sections, populated via ProductController APIs.
-  final List<Product> _mostPopularProducts = [];
-  final List<Product> _trendingProducts = [];
-  final List<Product> _flashSaleProducts = [];
-
   @override
   void initState() {
     super.initState();
-    final productController = Get.find<ProductController>();
-    final categoryController = Get.find<CategoryController>();
-    final brandController = Get.find<BrandController>();
-
-    _loadHomeData(productController);
-    categoryController.loadItems();
-    brandController.loadItems();
-  }
-
-  Future<void> _loadHomeData(ProductController controller) async {
-    try {
-      final sections = await controller.loadHomeSections();
-      setState(() {
-        _mostPopularProducts
-          ..clear()
-          ..addAll(sections.mostPopular);
-        _flashSaleProducts
-          ..clear()
-          ..addAll(sections.flashSale);
-      });
-
-      setState(() {
-        _trendingProducts
-          ..clear()
-          ..addAll(sections.trending);
-      });
-    } catch (_) {
-      // Ignore errors here; individual sections will just show empty state
+    if (!Get.isRegistered<ProductController>()) {
+      Get.put(AppServices.getIt<ProductController>(), permanent: true);
+    }
+    if (!Get.isRegistered<CategoryController>()) {
+      Get.put(AppServices.getIt<CategoryController>(), permanent: true);
+    }
+    if (!Get.isRegistered<BrandController>()) {
+      Get.put(AppServices.getIt<BrandController>(), permanent: true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final productController = Get.find<ProductController>();
     return Scaffold(
       appBar: _buildAppBar(context),
       body: SafeArea(
@@ -121,9 +97,11 @@ class _HomePageState extends State<HomePage> {
                 horizontal: 16,
                 vertical: 8,
               ),
-              sliver: _buildPopularGrid(
-                context,
-                _mostPopularProducts,
+              sliver: Obx(
+                () => _buildPopularGrid(
+                  context,
+                  productController.items.toList(),
+                ),
               ),
             ),
             SliverToBoxAdapter(
@@ -148,16 +126,20 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     _buildSectionHeader(context, title: 'Trending Items'),
                     ResponsiveHelper.getResponsiveSpacing(context, 12),
-                    _buildTrendingStrip(
-                      context,
-                      _trendingProducts,
+                    Obx(
+                      () => _buildTrendingStrip(
+                        context,
+                        productController.items.toList(),
+                      ),
                     ),
                     ResponsiveHelper.getResponsiveSpacing(context, 24),
                     _buildFlashSaleHeader(context),
                     ResponsiveHelper.getResponsiveSpacing(context, 12),
-                    _buildFlashSaleGrid(
-                      context,
-                      _flashSaleProducts,
+                    Obx(
+                      () => _buildFlashSaleGrid(
+                        context,
+                        productController.items.toList(),
+                      ),
                     ),
                     ResponsiveHelper.getResponsiveSpacing(context, 24),
                     _buildSectionHeader(context, title: 'Popular Brands'),
@@ -453,6 +435,8 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCategoryStrip(BuildContext context) {
     final controller = Get.find<CategoryController>();
+    controller.loadItems();
+
     return Obx(() {
       final categories = controller.items;
       if (categories.isEmpty) {
@@ -977,6 +961,7 @@ class _HomePageState extends State<HomePage> {
     const cardWidth = 110.0;
     const cardHeight = 100.0;
     final controller = Get.find<BrandController>();
+    controller.loadItems();
 
     return Obx(() {
       final brands = controller.items;
