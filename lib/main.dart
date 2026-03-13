@@ -22,7 +22,7 @@ void main() async {
       apiTimeout: const Duration(seconds: 30),
     ),
   );
-
+  //comment out
   // Pre-initialize Controllers to ensure they're always available
   // Get.put(AppServices.getIt<ProductController>(), permanent: true);
 
@@ -44,11 +44,16 @@ class EncoderGroceriesApp extends StatelessWidget {
       builder: (context, child) {
         return GetMaterialApp.router(
           title: 'ShowProd - Product Showcase',
-          theme: AppTheme.darkTheme,
+          theme: AppTheme.lightTheme,
           getPages: AppPages.routes,
           routerDelegate: GetDelegate(),
+          routeInformationProvider: PlatformRouteInformationProvider(
+            initialRouteInformation: const RouteInformation(
+              location: AppRoutes.root,
+            ),
+          ),
           routeInformationParser: GetInformationParser(
-            initialRoute: AppRoutes.home,
+            initialRoute: AppRoutes.root,
           ),
           debugShowCheckedModeBanner: false,
         );
