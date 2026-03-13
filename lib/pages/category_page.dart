@@ -6,6 +6,7 @@ import '../controllers/category_controller.dart';
 import '../models/category/category_model.dart';
 import '../utils/app_theme.dart';
 import '../routes/app_pages.dart';
+import 'category_details_page.dart';
 
 class CategoryPage extends StatelessWidget {
   const CategoryPage({super.key});
@@ -82,10 +83,13 @@ class CategoryPage extends StatelessWidget {
               final c = categories[index];
 
               return InkWell(
-                onTap: () => Get.rootDelegate.toNamed(
-                  AppRoutes.categoryDetails,
-                  arguments: c,
-                ),
+                onTap: () {
+                  debugPrint('Tapped category (CategoryPage): ${c.name}');
+                  Get.to(() => CategoryDetailsPage(
+                        categoryId: c.id,
+                        categoryName: c.name,
+                      ));
+                },
                 borderRadius: BorderRadius.circular(
                   ResponsiveHelper.getResponsiveRadius(context, 12),
                 ),

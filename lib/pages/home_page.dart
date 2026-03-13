@@ -12,6 +12,7 @@ import '../controllers/brand_controller.dart';
 import '../routes/app_pages.dart';
 import '../utils/app_theme.dart';
 import 'product_details_page.dart';
+import 'category_details_page.dart';
 import '../services/app_services.dart';
 
 class HomePage extends StatefulWidget {
@@ -459,10 +460,13 @@ class _HomePageState extends State<HomePage> {
           final category = categories[index];
           final icon = _categoryIcons[index % _categoryIcons.length];
           return InkWell(
-            onTap: () => Get.rootDelegate.toNamed(
-              AppRoutes.categoryDetails,
-              arguments: category,
-            ),
+            onTap: () {
+              debugPrint('Tapped category (HomePage): ${category.name}');
+              Get.to(() => CategoryDetailsPage(
+                    categoryId: category.id,
+                    categoryName: category.name,
+                  ));
+            },
             child: Container(
               width: ResponsiveHelper.getResponsiveWidth(context, 120),
               padding: ResponsiveHelper.getResponsivePadding(

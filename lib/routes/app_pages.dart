@@ -4,7 +4,6 @@ import '../controllers/brand_controller.dart';
 import '../controllers/category_controller.dart';
 import '../controllers/product_controller.dart';
 import '../controllers/auth_controller.dart';
-import '../models/category/category_model.dart';
 import '../services/app_services.dart';
 import 'nav_shell.dart';
 import '../pages/product_page.dart';
@@ -58,16 +57,16 @@ class AppPages {
     GetPage(
       name: AppRoutes.categoryDetails,
       page: () {
-        final arg = Get.arguments;
-        int? categoryId;
-        String categoryName = 'Category';
+        final params = Get.parameters;
+        final idParam = params['id'];
+        final nameParam = params['name'];
 
-        if (arg is Category) {
-          categoryId = arg.id;
-          categoryName = arg.name;
-        } else if (arg is String && arg.trim().isNotEmpty) {
-          categoryName = arg;
-        }
+        final int? categoryId =
+            idParam != null ? int.tryParse(idParam) : null;
+        final String categoryName =
+            (nameParam != null && nameParam.trim().isNotEmpty)
+                ? nameParam
+                : 'Category';
 
         return CategoryDetailsPage(
           categoryId: categoryId,
