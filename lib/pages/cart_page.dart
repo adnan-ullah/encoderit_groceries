@@ -19,19 +19,23 @@ class _CartPageState extends State<CartPage> with SingleTickerProviderStateMixin
   double get _subtotal =>
       _items.fold(0.0, (sum, item) => sum + item.price * item.quantity);
 
-  late final AnimationController _emptyAnimController =
-      AnimationController(vsync: this, duration: const Duration(seconds: 2))
-        ..repeat(reverse: true);
+  late final AnimationController _emptyAnimController;
+  late final Animation<double> _emptyOffset;
 
-  late final Animation<double> _emptyOffset = Tween<double>(
-    begin: 0,
-    end: -10,
-  ).animate(
-    CurvedAnimation(
-      parent: _emptyAnimController,
-      curve: Curves.easeInOut,
-    ),
-  );
+  @override
+  void initState() {
+    super.initState();
+    _emptyAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+    _emptyOffset = Tween<double>(begin: 0, end: -10).animate(
+      CurvedAnimation(
+        parent: _emptyAnimController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
 
   @override
   void dispose() {
