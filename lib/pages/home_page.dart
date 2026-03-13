@@ -5,12 +5,15 @@ import 'package:get/get.dart';
 import '../controllers/brand_controller.dart';
 import '../controllers/category_controller.dart';
 import '../controllers/product_controller.dart';
+import '../models/category/category_model.dart';
 import '../models/home_models.dart';
 import '../models/product/product_model.dart';
 import '../routes/app_pages.dart';
 import '../services/app_services.dart';
 import '../utils/app_theme.dart';
 import 'product_details_page.dart';
+import 'category_details_page.dart';
+import '../services/app_services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -40,14 +43,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    if (!Get.isRegistered<ProductController>()) {
-      Get.put(AppServices.getIt<ProductController>(), permanent: true);
-    }
-    if (!Get.isRegistered<CategoryController>()) {
-      Get.put(AppServices.getIt<CategoryController>(), permanent: true);
-    }
-    if (!Get.isRegistered<BrandController>()) {
-      Get.put(AppServices.getIt<BrandController>(), permanent: true);
+    // Ensure categories are loaded for the home "Browse by Category" strip.
+    final categoryController = Get.find<CategoryController>();
+    if (!categoryController.isLoading.value &&
+        categoryController.items.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        categoryController.loadItems();
+      });
     }
   }
 
@@ -396,10 +398,16 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCategoryStrip(BuildContext context) {
     final controller = Get.find<CategoryController>();
-    controller.loadItems();
-
     return Obx(() {
-      final categories = controller.items;
+      // Extra safety: ensure we only render unique category names
+      final byName = <String, Category>{};
+      for (final c in controller.items) {
+        final key = c.name.trim().toLowerCase();
+        if (key.isNotEmpty) {
+          byName[key] = c;
+        }
+      }
+      final categories = byName.values.toList();
       if (categories.isEmpty) {
         return const SizedBox.shrink();
       }
@@ -415,10 +423,13 @@ class _HomePageState extends State<HomePage> {
             final category = categories[index];
             final icon = _categoryIcons[index % _categoryIcons.length];
             return InkWell(
-              onTap: () => Get.rootDelegate.toNamed(
-                AppRoutes.categoryDetails,
-                arguments: category,
-              ),
+              onTap: () {
+                debugPrint('Tapped category (HomePage): ${category.name}');
+                Get.to(() => CategoryDetailsPage(
+                  categoryId: category.id,
+                  categoryName: category.name,
+                ));
+              },
               child: Container(
                 width: ResponsiveHelper.getResponsiveWidth(context, 120),
                 padding: ResponsiveHelper.getResponsivePadding(
@@ -593,21 +604,11 @@ class _HomePageState extends State<HomePage> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AppTheme.lightCard,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(radius),
-                              topRight: Radius.circular(radius),
-                            ),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.image_outlined,
-                              size: 48,
-                              color: AppTheme.textTertiary,
-                            ),
-                          ),
+                        _ProductCardImage(
+                          imageUrl: item.images.isNotEmpty
+                              ? item.images.first.src
+                              : null,
+                          radius: radius,
                         ),
                         Positioned(
                           top: 8,
@@ -795,21 +796,11 @@ class _HomePageState extends State<HomePage> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppTheme.lightCard,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(radius),
-                          topRight: Radius.circular(radius),
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.image_outlined,
-                          size: 48,
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
+                    _ProductCardImage(
+                      imageUrl: product.images.isNotEmpty
+                          ? product.images.first.src
+                          : null,
+                      radius: radius,
                     ),
                     Positioned(
                       top: 8,
@@ -1056,21 +1047,11 @@ class _HomePageState extends State<HomePage> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppTheme.lightCard,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(radius),
-                          topRight: Radius.circular(radius),
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.image_outlined,
-                          size: 48,
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
+                    _ProductCardImage(
+                      imageUrl: product.images.isNotEmpty
+                          ? product.images.first.src
+                          : null,
+                      radius: radius,
                     ),
                     Positioned(
                       top: 8,
@@ -1193,6 +1174,49 @@ class _HomePageState extends State<HomePage> {
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
         childAspectRatio: 0.72,
+      ),
+    );
+  }
+}
+
+class _ProductCardImage extends StatelessWidget {
+  const _ProductCardImage({
+    required this.imageUrl,
+    required this.radius,
+  });
+
+  final String? imageUrl;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderRadius = BorderRadius.only(
+      topLeft: Radius.circular(radius),
+      topRight: Radius.circular(radius),
+    );
+
+    if (imageUrl == null || imageUrl!.isEmpty) {
+      return Container(
+        decoration: BoxDecoration(
+          color: AppTheme.lightCard,
+          borderRadius: borderRadius,
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.image_outlined,
+            size: 48,
+            color: AppTheme.textTertiary,
+          ),
+        ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: FadeInImage.assetNetwork(
+        placeholder: 'assets/images/offer_banner_3.png',
+        image: imageUrl!,
+        fit: BoxFit.cover,
       ),
     );
   }

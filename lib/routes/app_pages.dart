@@ -2,12 +2,12 @@ import 'package:get/get.dart';
 
 import '../controllers/brand_controller.dart';
 import '../controllers/category_controller.dart';
-import 'nav_shell.dart';
-import '../pages/product_page.dart';
-import '../pages/login_page.dart';
 import '../controllers/product_controller.dart';
 import '../controllers/auth_controller.dart';
 import '../services/app_services.dart';
+import 'nav_shell.dart';
+import '../pages/product_page.dart';
+import '../pages/login_page.dart';
 import '../pages/home_page.dart';
 import '../pages/category_page.dart';
 import '../pages/cart_page.dart';
@@ -57,9 +57,21 @@ class AppPages {
     GetPage(
       name: AppRoutes.categoryDetails,
       page: () {
-        final arg = Get.arguments;
-        final name = (arg is String && arg.trim().isNotEmpty) ? arg : 'Category';
-        return CategoryDetailsPage(categoryName: name);
+        final params = Get.parameters;
+        final idParam = params['id'];
+        final nameParam = params['name'];
+
+        final int? categoryId =
+            idParam != null ? int.tryParse(idParam) : null;
+        final String categoryName =
+            (nameParam != null && nameParam.trim().isNotEmpty)
+                ? nameParam
+                : 'Category';
+
+        return CategoryDetailsPage(
+          categoryId: categoryId,
+          categoryName: categoryName,
+        );
       },
     ),
     GetPage(
@@ -79,8 +91,15 @@ class AppPages {
         GetPage(
           name: AppRoutes.home,
           binding: BindingsBuilder(() {
-
-
+            if (!Get.isRegistered<ProductController>()) {
+              Get.put(AppServices.getIt<ProductController>(), permanent: true);
+            }
+            if (!Get.isRegistered<CategoryController>()) {
+              Get.put(AppServices.getIt<CategoryController>(), permanent: true);
+            }
+            if (!Get.isRegistered<BrandController>()) {
+              Get.put(AppServices.getIt<BrandController>(), permanent: true);
+            }
           }),
           page: () => const HomePage(),
         ),

@@ -14,6 +14,13 @@ class BrandController extends BaseListController<Brand>
   });
 
   @override
+  void onReady() {
+    super.onReady();
+    loadItems();
+  }
+
+
+  @override
   Future<void> loadItems() async {
     items.clear();
     await handleListResult(() async {

@@ -2,60 +2,64 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
-import '../models/home_models.dart';
+import '../controllers/product_controller.dart';
+import '../models/product/product_model.dart';
 import '../routes/app_pages.dart';
 import 'sorting_page.dart';
 import 'product_details_page.dart';
 import '../utils/app_theme.dart';
 
-class CategoryDetailsPage extends StatelessWidget {
+class CategoryDetailsPage extends StatefulWidget {
   const CategoryDetailsPage({
     super.key,
     required this.categoryName,
+    this.categoryId,
   });
 
   final String categoryName;
+  final int? categoryId;
+
+  @override
+  State<CategoryDetailsPage> createState() => _CategoryDetailsPageState();
+}
+
+class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
   static SortOption _currentSort = SortOption.popularity;
 
-  static const _dummyProducts = <CategoryDetailProduct>[
-    CategoryDetailProduct(
-      name: 'Capsicum',
-      price: 21.56,
-      oldPrice: 22.00,
-      isFavorite: true,
-    ),
-    CategoryDetailProduct(
-      name: 'Cauliflower',
-      price: 45.00,
-      oldPrice: null,
-      isFavorite: true,
-    ),
-    CategoryDetailProduct(
-      name: 'Coriander Leaves',
-      price: 42.75,
-      oldPrice: 45.00,
-    ),
-    CategoryDetailProduct(
-      name: 'Cucumber',
-      price: 32.01,
-      oldPrice: 33.00,
-    ),
-    CategoryDetailProduct(
-      name: 'Tomato',
-      price: 18.20,
-      oldPrice: 20.00,
-    ),
-    CategoryDetailProduct(
-      name: 'Carrot',
-      price: 15.50,
-      oldPrice: null,
-    ),
-  ];
+  late final ProductController _controller;
+
+  List<Product> _filteredProducts() {
+    final all = _controller.items;
+    if (all.isEmpty) return const [];
+
+    // Filter strictly by visible category name so behaviour is
+    // identical whether we navigated from Home or Category list.
+    final targetName = widget.categoryName.trim().toLowerCase();
+    return all
+        .where(
+          (p) => p.categories.any(
+            (c) => c.name.trim().toLowerCase() == targetName,
+          ),
+        )
+        .toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = Get.find<ProductController>();
+    _loadCategoryProducts();
+  }
+
+  Future<void> _loadCategoryProducts() async {
+    // Always load the full product list; this screen filters
+    // locally by category id/name to avoid any backend quirks.
+    await _controller.loadItems();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final products = _dummyProducts;
 
     return Scaffold(
       appBar: AppBar(
@@ -92,19 +96,22 @@ class CategoryDetailsPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          categoryName,
+                          widget.categoryName,
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: AppTheme.textPrimary,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          '(${products.length} Products Found)',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
+                        Obx(() {
+                          final products = _filteredProducts();
+                          return Text(
+                            '(${products.length} Products Found)',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                          );
+                        }),
                       ],
                     ),
                   ),
@@ -143,19 +150,53 @@ class CategoryDetailsPage extends StatelessWidget {
               ),
               ResponsiveHelper.getResponsiveSpacing(context, 10),
               Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.72,
-                  ),
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final product = products[index];
-                    return _CategoryProductCard(product: product);
-                  },
-                ),
+                child: Obx(() {
+                  final products = _filteredProducts();
+
+                  if (_controller.isLoading.value && products.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (_controller.errorMessage.value.isNotEmpty &&
+                      products.isEmpty) {
+                    return Center(
+                      child: Text(
+                        _controller.errorMessage.value,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.error,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }
+
+                  if (products.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No products found in this category.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }
+
+                  return GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 0.72,
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final product = products[index];
+                      return _CategoryProductCard(product: product);
+                    },
+                  );
+                }),
               ),
             ],
           ),
@@ -168,7 +209,7 @@ class CategoryDetailsPage extends StatelessWidget {
 class _CategoryProductCard extends StatelessWidget {
   const _CategoryProductCard({required this.product});
 
-  final CategoryDetailProduct product;
+  final Product product;
 
   @override
   Widget build(BuildContext context) {
@@ -195,30 +236,18 @@ class _CategoryProductCard extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppTheme.lightCard,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(radius),
-                      topRight: Radius.circular(radius),
-                    ),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 48,
-                      color: AppTheme.textTertiary,
-                    ),
-                  ),
+                _ProductImage(
+                  imageUrl: product.images.isNotEmpty
+                      ? product.images.first.src
+                      : null,
+                  radius: radius,
                 ),
-                Positioned(
+                const Positioned(
                   top: 8,
                   right: 8,
                   child: Icon(
-                    product.isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: product.isFavorite
-                        ? AppTheme.goldSecondary
-                        : AppTheme.textSecondary,
+                    Icons.favorite_border,
+                    color: AppTheme.textSecondary,
                     size: 20,
                   ),
                 ),
@@ -228,7 +257,8 @@ class _CategoryProductCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () => showProductDetailsSheet(context),
+                      onTap: () =>
+                          showProductDetailsSheet(context, product: product),
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -285,34 +315,92 @@ class _CategoryProductCard extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        '\$${product.price.toStringAsFixed(2)}',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: AppTheme.goldPrimary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      if (product.oldPrice != null) ...[
-                        const SizedBox(width: 6),
-                        Text(
-                          '\$${product.oldPrice!.toStringAsFixed(2)}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppTheme.error,
-                            decoration: TextDecoration.lineThrough,
+                  Builder(
+                    builder: (context) {
+                      final currentPrice = double.tryParse(
+                            product.price ??
+                                product.salePrice ??
+                                product.regularPrice ??
+                                '0',
+                          ) ??
+                          0;
+                      final oldPrice = double.tryParse(
+                        product.regularPrice ?? '',
+                      );
+
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            '\$${currentPrice.toStringAsFixed(2)}',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: AppTheme.goldPrimary,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                        ),
-                      ],
-                    ],
+                          if (oldPrice != null && oldPrice > currentPrice) ...[
+                            const SizedBox(width: 6),
+                            Text(
+                              '\$${oldPrice.toStringAsFixed(2)}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppTheme.error,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                          ],
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ProductImage extends StatelessWidget {
+  const _ProductImage({
+    required this.imageUrl,
+    required this.radius,
+  });
+
+  final String? imageUrl;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderRadius = BorderRadius.only(
+      topLeft: Radius.circular(radius),
+      topRight: Radius.circular(radius),
+    );
+
+    if (imageUrl == null || imageUrl!.isEmpty) {
+      return Container(
+        decoration: BoxDecoration(
+          color: AppTheme.lightCard,
+          borderRadius: borderRadius,
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.image_outlined,
+            size: 48,
+            color: AppTheme.textTertiary,
+          ),
+        ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: FadeInImage.assetNetwork(
+        placeholder: 'assets/images/offer_banner_3.png',
+        image: imageUrl!,
+        fit: BoxFit.cover,
       ),
     );
   }
