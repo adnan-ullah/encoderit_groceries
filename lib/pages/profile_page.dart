@@ -16,6 +16,8 @@ class ProfilePage extends StatelessWidget {
     (icon: Icons.info_outline, title: 'About Us'),
     (icon: Icons.support_agent_outlined, title: 'Contact Us'),
     (icon: Icons.local_shipping_outlined, title: 'Delivery'),
+    (icon: Icons.currency_exchange, title: 'Return & Exchange'),
+    (icon: Icons.question_answer_sharp, title: 'FAQ')
   ];
 
   @override
