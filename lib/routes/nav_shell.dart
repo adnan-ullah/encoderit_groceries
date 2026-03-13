@@ -10,6 +10,7 @@ class NavShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveBottomNavShell(
       initialRoute: AppRoutes.home,
+      backgroundColor: Colors.white,
       items: const [
         ResponsiveNavItem(
           route: AppRoutes.home,
@@ -19,9 +20,9 @@ class NavShell extends StatelessWidget {
         ),
         ResponsiveNavItem(
           route: AppRoutes.products,
-          label: 'Products',
-          icon: Icons.shopping_bag_outlined,
-          activeIcon: Icons.shopping_bag,
+          label: 'Categories',
+          icon: Icons.grid_view_outlined,
+          activeIcon: Icons.grid_view,
         ),
         ResponsiveNavItem(
           route: AppRoutes.cart,
@@ -31,7 +32,7 @@ class NavShell extends StatelessWidget {
         ),
         ResponsiveNavItem(
           route: AppRoutes.favorites,
-          label: 'Favorites',
+          label: 'Wishlist',
           icon: Icons.favorite_border,
           activeIcon: Icons.favorite,
         ),
@@ -42,10 +43,10 @@ class NavShell extends StatelessWidget {
         //   activeIcon: Icons.check_circle,
         // ),
         ResponsiveNavItem(
-          route: AppRoutes.settings,
-          label: 'Settings',
-          icon: Icons.settings_outlined,
-          activeIcon: Icons.settings,
+          route: AppRoutes.profile,
+          label: 'Profile',
+          icon: Icons.person_outline,
+          activeIcon: Icons.person,
         ),
       ],
     );
