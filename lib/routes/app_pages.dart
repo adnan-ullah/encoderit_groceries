@@ -76,7 +76,6 @@ class AppPages {
         // Home shows products list now (Todo API not available on WooCommerce backend)
         GetPage(
           name: AppRoutes.home,
-          page: () => const ProductPage(),
           binding: BindingsBuilder(() {
             if (!Get.isRegistered<ProductController>()) {
               Get.put(AppServices.getIt<ProductController>(), permanent: true);
