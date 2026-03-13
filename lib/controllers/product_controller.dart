@@ -60,6 +60,18 @@ class ProductController extends BaseListController<Product>
     );
   }
 
+  /// Helper: remove duplicate products by id while preserving order.
+  List<Product> distinctById(List<Product> products) {
+    final seen = <int>{};
+    final result = <Product>[];
+    for (final p in products) {
+      if (seen.add(p.id)) {
+        result.add(p);
+      }
+    }
+    return result;
+  }
+
   Future<void> loadOrdered({
     String orderBy = 'date',
     String order = 'asc',

@@ -30,54 +30,6 @@ class HomeCategory {
   final IconData icon;
 }
 
-class PopularProduct {
-  const PopularProduct({
-    required this.name,
-    required this.subtitle,
-    required this.price,
-    this.oldPrice,
-    this.isFavorite = false,
-  });
-
-  final String name;
-  final String subtitle;
-  final double price;
-  final double? oldPrice;
-  final bool isFavorite;
-}
-
-/// Dummy model for Trending Items horizontal list.
-class TrendingItem {
-  const TrendingItem({
-    required this.name,
-    required this.unit,
-    required this.price,
-    this.isFavorite = false,
-  });
-
-  final String name;
-  final String unit;
-  final double price;
-  final bool isFavorite;
-}
-
-/// Dummy model for Flash Sale grid (name, unit, current price, original price).
-class FlashSaleProduct {
-  const FlashSaleProduct({
-    required this.name,
-    required this.unit,
-    required this.price,
-    required this.oldPrice,
-    this.isFavorite = false,
-  });
-
-  final String name;
-  final String unit;
-  final double price;
-  final double oldPrice;
-  final bool isFavorite;
-}
-
 /// Dummy model for Popular Brands horizontal list.
 class PopularBrand {
   const PopularBrand({required this.name});
