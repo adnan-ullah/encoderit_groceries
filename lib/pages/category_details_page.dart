@@ -236,21 +236,11 @@ class _CategoryProductCard extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppTheme.lightCard,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(radius),
-                      topRight: Radius.circular(radius),
-                    ),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 48,
-                      color: AppTheme.textTertiary,
-                    ),
-                  ),
+                _ProductImage(
+                  imageUrl: product.images.isNotEmpty
+                      ? product.images.first.src
+                      : null,
+                  radius: radius,
                 ),
                 const Positioned(
                   top: 8,
@@ -368,6 +358,49 @@ class _CategoryProductCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ProductImage extends StatelessWidget {
+  const _ProductImage({
+    required this.imageUrl,
+    required this.radius,
+  });
+
+  final String? imageUrl;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderRadius = BorderRadius.only(
+      topLeft: Radius.circular(radius),
+      topRight: Radius.circular(radius),
+    );
+
+    if (imageUrl == null || imageUrl!.isEmpty) {
+      return Container(
+        decoration: BoxDecoration(
+          color: AppTheme.lightCard,
+          borderRadius: borderRadius,
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.image_outlined,
+            size: 48,
+            color: AppTheme.textTertiary,
+          ),
+        ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: FadeInImage.assetNetwork(
+        placeholder: 'assets/images/offer_banner_3.png',
+        image: imageUrl!,
+        fit: BoxFit.cover,
       ),
     );
   }

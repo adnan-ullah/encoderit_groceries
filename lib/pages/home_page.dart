@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../controllers/brand_controller.dart';
 import '../controllers/category_controller.dart';
 import '../controllers/product_controller.dart';
+import '../models/category/category_model.dart';
 import '../models/home_models.dart';
 import '../models/product/product_model.dart';
 import '../routes/app_pages.dart';
@@ -603,21 +604,11 @@ class _HomePageState extends State<HomePage> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AppTheme.lightCard,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(radius),
-                              topRight: Radius.circular(radius),
-                            ),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.image_outlined,
-                              size: 48,
-                              color: AppTheme.textTertiary,
-                            ),
-                          ),
+                        _ProductCardImage(
+                          imageUrl: item.images.isNotEmpty
+                              ? item.images.first.src
+                              : null,
+                          radius: radius,
                         ),
                         Positioned(
                           top: 8,
@@ -805,21 +796,11 @@ class _HomePageState extends State<HomePage> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppTheme.lightCard,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(radius),
-                          topRight: Radius.circular(radius),
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.image_outlined,
-                          size: 48,
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
+                    _ProductCardImage(
+                      imageUrl: product.images.isNotEmpty
+                          ? product.images.first.src
+                          : null,
+                      radius: radius,
                     ),
                     Positioned(
                       top: 8,
@@ -1066,21 +1047,11 @@ class _HomePageState extends State<HomePage> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppTheme.lightCard,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(radius),
-                          topRight: Radius.circular(radius),
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.image_outlined,
-                          size: 48,
-                          color: AppTheme.textTertiary,
-                        ),
-                      ),
+                    _ProductCardImage(
+                      imageUrl: product.images.isNotEmpty
+                          ? product.images.first.src
+                          : null,
+                      radius: radius,
                     ),
                     Positioned(
                       top: 8,
@@ -1203,6 +1174,49 @@ class _HomePageState extends State<HomePage> {
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
         childAspectRatio: 0.72,
+      ),
+    );
+  }
+}
+
+class _ProductCardImage extends StatelessWidget {
+  const _ProductCardImage({
+    required this.imageUrl,
+    required this.radius,
+  });
+
+  final String? imageUrl;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderRadius = BorderRadius.only(
+      topLeft: Radius.circular(radius),
+      topRight: Radius.circular(radius),
+    );
+
+    if (imageUrl == null || imageUrl!.isEmpty) {
+      return Container(
+        decoration: BoxDecoration(
+          color: AppTheme.lightCard,
+          borderRadius: borderRadius,
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.image_outlined,
+            size: 48,
+            color: AppTheme.textTertiary,
+          ),
+        ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: FadeInImage.assetNetwork(
+        placeholder: 'assets/images/offer_banner_3.png',
+        image: imageUrl!,
+        fit: BoxFit.cover,
       ),
     );
   }
