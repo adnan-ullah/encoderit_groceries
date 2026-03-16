@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
+import '../controllers/local_cart_controller.dart';
+import '../controllers/wishlist_controller.dart';
+import '../services/app_services.dart';
 import '../models/product/product_model.dart';
 import '../utils/app_theme.dart';
 
@@ -29,6 +34,42 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
   int _quantity = 1;
   static const int _available = 8;
 
+  void _addToCart(
+    BuildContext context, {
+    Product? product,
+    required String name,
+    required String unit,
+    required double priceValue,
+    required double? oldPriceValue,
+    required int quantity,
+  }) {
+    if (!Get.isRegistered<LocalCartController>()) {
+      Get.put(LocalCartController(), permanent: true);
+    }
+    final cart = Get.find<LocalCartController>();
+    cart.addProduct(
+      name: name,
+      price: priceValue,
+      oldPrice: oldPriceValue,
+      quantity: quantity,
+      productId: product?.id,
+    );
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          quantity > 1
+              ? 'Added $quantity items to cart'
+              : 'Added to cart',
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppTheme.goldPrimary,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -51,7 +92,9 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
         35.00;
     final description = product?.shortDescription?.isNotEmpty == true
         ? product!.shortDescription!
-        : 'No job is too big, no pup is too small! Luvs diapers with new Paw Patrol designs have your back and their butts. Luvs now has up to 12 hours of protection, day and night. Our highly trained paws are at your service to help stop diaper leaks quickly.';
+        : product?.description?.isNotEmpty == true
+            ? product!.description!
+            : 'No job is too big, no pup is too small! Luvs diapers with new Paw Patrol designs have your back and their butts. Luvs now has up to 12 hours of protection, day and night. Our highly trained paws are at your service to help stop diaper leaks quickly.';
 
     return Container(
       width: double.infinity,
@@ -187,7 +230,15 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
                     child: SizedBox(
                       height: ResponsiveHelper.getResponsiveHeight(context, 48),
                       child: ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () => _addToCart(
+                          context,
+                          product: product,
+                          name: name,
+                          unit: unit,
+                          priceValue: priceValue,
+                          oldPriceValue: oldPriceValue,
+                          quantity: _quantity,
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.goldPrimary,
                           foregroundColor: Colors.white,
@@ -207,35 +258,15 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
                   Expanded(
                     child: SizedBox(
                       height: ResponsiveHelper.getResponsiveHeight(context, 48),
-                      child: OutlinedButton.icon(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(
-                            color: Colors.grey.shade300,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              ResponsiveHelper.getResponsiveRadius(context, 28),
-                            ),
-                          ),
-                        ),
-                        icon: const Icon(Icons.favorite_border, color: AppTheme.textPrimary),
-                        label: Text(
-                          'Favorite',
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: AppTheme.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
+                      child: _FavoriteButton(product: product),
                     ),
                   ),
                 ],
               ),
               ResponsiveHelper.getResponsiveSpacing(context, 16),
-              Text(
+              HtmlWidget(
                 description,
-                style: theme.textTheme.bodySmall?.copyWith(
+                textStyle: theme.textTheme.bodySmall?.copyWith(
                   color: AppTheme.textSecondary,
                   height: 1.4,
                 ),
@@ -303,6 +334,54 @@ class _QuantityButton extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _FavoriteButton extends StatelessWidget {
+  const _FavoriteButton({this.product});
+
+  final Product? product;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    if (!Get.isRegistered<WishlistController>()) {
+      Get.put(AppServices.getIt<WishlistController>(), permanent: true);
+    }
+    final wishlist = Get.find<WishlistController>();
+
+    return Obx(() {
+      final isFavorite =
+          product != null && wishlist.isInWishlist(product!.id);
+      return OutlinedButton.icon(
+        onPressed: () {
+          if (product != null) {
+            wishlist.toggleProduct(product!);
+          }
+        },
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(
+            color: Colors.grey.shade300,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getResponsiveRadius(context, 28),
+            ),
+          ),
+        ),
+        icon: Icon(
+          isFavorite ? Icons.favorite : Icons.favorite_border,
+          color: isFavorite ? AppTheme.goldSecondary : AppTheme.textPrimary,
+        ),
+        label: Text(
+          isFavorite ? 'Favorited' : 'Favorite',
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: AppTheme.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    });
   }
 }
 

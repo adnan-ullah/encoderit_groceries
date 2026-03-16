@@ -7,6 +7,7 @@ import '../di/product/product_di.dart';
 import '../di/auth/auth_di.dart';
 import '../di/category/category_di.dart';
 import '../di/brand/brand_di.dart';
+import '../di/wishlist/wishlist_di.dart';
 
 
 /// App Services using get_it for dependency injection
@@ -48,6 +49,7 @@ class AppServices {
     await setupProductDomainServices();
     await setupCategoryDomainServices();
     await setupBrandDomainServices();
+    await setupWishlistDomainServices();
     // await setupCartDomainServices();
     // setupFavoritesDomainServices();
     // setupSearchDomainServices();

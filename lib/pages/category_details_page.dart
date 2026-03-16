@@ -3,8 +3,11 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../controllers/product_controller.dart';
+import '../controllers/wishlist_controller.dart';
+import '../models/product/product_model.dart' hide ProductImage;
 import '../models/product/product_model.dart' hide ProductImage;
 import '../routes/app_pages.dart';
+import '../services/app_services.dart';
 import '../utils/models/ProductImage.dart';
 import 'sorting_page.dart';
 import 'product_details_page.dart';
@@ -45,6 +48,47 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
         .toList();
   }
 
+  static double _productPrice(Product p) {
+    return double.tryParse(
+          p.price ?? p.salePrice ?? p.regularPrice ?? '0',
+        ) ??
+        0.0;
+  }
+
+  static DateTime? _productDate(Product p) {
+    final s = p.dateCreated ?? p.dateModified;
+    if (s == null || s.isEmpty) return null;
+    return DateTime.tryParse(s);
+  }
+
+  List<Product> _filteredAndSortedProducts() {
+    final list = List<Product>.from(_filteredProducts());
+    if (list.isEmpty) return list;
+
+    switch (_currentSort) {
+      case SortOption.popularity:
+        list.sort((a, b) => (b.totalSales ?? 0).compareTo(a.totalSales ?? 0));
+        break;
+      case SortOption.newest:
+        list.sort((a, b) {
+          final da = _productDate(a);
+          final db = _productDate(b);
+          if (da == null && db == null) return 0;
+          if (da == null) return 1;
+          if (db == null) return -1;
+          return db.compareTo(da);
+        });
+        break;
+      case SortOption.priceLowToHigh:
+        list.sort((a, b) => _productPrice(a).compareTo(_productPrice(b)));
+        break;
+      case SortOption.priceHighToLow:
+        list.sort((a, b) => _productPrice(b).compareTo(_productPrice(a)));
+        break;
+    }
+    return list;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +104,19 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
     await _controller.loadItems();
   }
 
+  static String _sortOptionLabel(SortOption option) {
+    switch (option) {
+      case SortOption.popularity:
+        return 'Popularity';
+      case SortOption.newest:
+        return 'Newest';
+      case SortOption.priceLowToHigh:
+        return 'Price: Low to High';
+      case SortOption.priceHighToLow:
+        return 'Price: High to Low';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -70,7 +127,9 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () => Get.back(),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
         actions: [
           IconButton(
@@ -135,16 +194,18 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
                       );
 
                       if (result != null) {
-                        _currentSort = result;
-                        Get.snackbar(
-                          'Sorting applied',
-                          result.name,
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.white,
-                          colorText: AppTheme.textPrimary,
-                          margin: const EdgeInsets.all(12),
-                          duration: const Duration(seconds: 2),
-                        );
+                        setState(() => _currentSort = result);
+                        if (context.mounted) {
+                          Get.snackbar(
+                            'Sorting applied',
+                            _sortOptionLabel(result),
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.white,
+                            colorText: AppTheme.textPrimary,
+                            margin: const EdgeInsets.all(12),
+                            duration: const Duration(seconds: 2),
+                          );
+                        }
                       }
                     },
                     icon: const Icon(Icons.tune),
@@ -154,7 +215,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
               ResponsiveHelper.getResponsiveSpacing(context, 10),
               Expanded(
                 child: Obx(() {
-                  final products = _filteredProducts();
+                  final products = _filteredAndSortedProducts();
 
                   if (_controller.isLoading.value && products.isEmpty) {
                     return const Center(child: CircularProgressIndicator());
@@ -245,14 +306,10 @@ class _CategoryProductCard extends StatelessWidget {
                       : null,
                   radius: radius,
                 ),
-                const Positioned(
+                Positioned(
                   top: 8,
                   right: 8,
-                  child: Icon(
-                    Icons.favorite_border,
-                    color: AppTheme.textSecondary,
-                    size: 20,
-                  ),
+                  child: _CategoryWishlistHeart(product: product),
                 ),
                 Positioned(
                   bottom: 8,
@@ -365,3 +422,46 @@ class _CategoryProductCard extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+class _CategoryWishlistHeart extends StatelessWidget {
+  const _CategoryWishlistHeart({required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!Get.isRegistered<WishlistController>()) {
+      Get.put(AppServices.getIt<WishlistController>(), permanent: true);
+    }
+    final wishlist = Get.find<WishlistController>();
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => wishlist.toggleProduct(product),
+        borderRadius: BorderRadius.circular(14),
+        child: CircleAvatar(
+          radius: 14,
+          backgroundColor: AppTheme.lightBackground,
+          child: Obx(() {
+            final isFavorite = wishlist.isInWishlist(product.id);
+            return Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: isFavorite
+                  ? AppTheme.goldSecondary
+                  : AppTheme.textSecondary,
+              size: 16,
+            );
+          }),
+        ),
+      ),
+    );
+  }
+}
+
+
+
