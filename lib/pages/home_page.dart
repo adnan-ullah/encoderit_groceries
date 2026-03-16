@@ -414,7 +414,7 @@ class _HomePageState extends State<HomePage> {
       }
 
       return SizedBox(
-        height: ResponsiveHelper.getResponsiveHeight(context, 90),
+        height: ResponsiveHelper.getResponsiveHeight(context, 110),
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: categories.length,
@@ -431,39 +431,63 @@ class _HomePageState extends State<HomePage> {
                   categoryName: category.name,
                 ));
               },
-              child: Container(
-                width: ResponsiveHelper.getResponsiveWidth(context, 120),
-                padding: ResponsiveHelper.getResponsivePadding(
-                  context,
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: AppTheme.lightSurface,
-                  borderRadius: BorderRadius.circular(
-                    ResponsiveHelper.getResponsiveRadius(context, 16),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 18,
-                      backgroundColor: AppTheme.goldPrimary.withOpacity(0.15),
-                      child: Icon(icon, color: AppTheme.goldPrimary, size: 20),
+              borderRadius: BorderRadius.circular(
+                ResponsiveHelper.getResponsiveRadius(context, 24),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: ResponsiveHelper.getResponsiveWidth(context, 50),
+                    height: ResponsiveHelper.getResponsiveHeight(context, 50),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.cyanBright.withOpacity(0.18),
+                          AppTheme.mintBright.withOpacity(0.10),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.06),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    const Spacer(),
-                    Text(
-                      category.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textPrimary,
-                        fontWeight: FontWeight.w500,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        icon,
+                        color: AppTheme.goldPrimary,
+                        size: ResponsiveHelper.getResponsiveSize(context, 26),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(
+                    height: ResponsiveHelper.getResponsiveHeight(context, 6),
+                  ),
+                  SizedBox(
+                    width: ResponsiveHelper.getResponsiveWidth(context, 80),
+                    child: Text(
+                      category.name,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppTheme.textPrimary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                  ),
+                ],
               ),
             );
           },
