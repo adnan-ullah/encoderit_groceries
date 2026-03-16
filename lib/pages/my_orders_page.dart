@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
+import '../controllers/local_orders_controller.dart';
 import '../utils/app_theme.dart';
 import 'order_tracking_page.dart';
 
@@ -14,54 +16,16 @@ class MyOrdersPage extends StatefulWidget {
 class _MyOrdersPageState extends State<MyOrdersPage>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-
-  final List<_OrderCardData> _orders = const [
-    _OrderCardData(
-      title: 'Fresh Beef Boneless',
-      transactionId: 'A23B567K',
-      dateLabel: '22/09/2023',
-      status: 'Out For Delivery',
-      price: 265.00,
-      stage: OrderStage.outForDelivery,
-    ),
-    _OrderCardData(
-      title: 'Organic Avocado Pack',
-      transactionId: 'B78F902L',
-      dateLabel: '22/09/2023',
-      status: 'Out For Delivery',
-      price: 265.00,
-      stage: OrderStage.outForDelivery,
-    ),
-    _OrderCardData(
-      title: 'Chicken Breast Fillet',
-      transactionId: 'C45Z321P',
-      dateLabel: '22/09/2023',
-      status: 'Preparing Order',
-      price: 265.00,
-      stage: OrderStage.processed,
-    ),
-    _OrderCardData(
-      title: 'Fresh Green Beans',
-      transactionId: 'X12M789Q',
-      dateLabel: '18/09/2023',
-      status: 'Delivered',
-      price: 199.00,
-      stage: OrderStage.delivered,
-    ),
-    _OrderCardData(
-      title: 'Canned Chopped Tomatoes',
-      transactionId: 'D55J443R',
-      dateLabel: '15/09/2023',
-      status: 'Delivered',
-      price: 135.50,
-      stage: OrderStage.delivered,
-    ),
-  ];
+  late final LocalOrdersController _orders;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    if (!Get.isRegistered<LocalOrdersController>()) {
+      Get.put(LocalOrdersController(), permanent: true);
+    }
+    _orders = Get.find<LocalOrdersController>();
   }
 
   @override
@@ -80,8 +44,8 @@ class _MyOrdersPageState extends State<MyOrdersPage>
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon:  Icon(Icons.arrow_back_ios_new),
-          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () => Get.rootDelegate.popRoute(),
         ),
         titleSpacing: 0,
         title: Text(
@@ -128,20 +92,22 @@ class _MyOrdersPageState extends State<MyOrdersPage>
         ),
       ),
       body: SafeArea(
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            _OrdersList(
-              orders: _orders.where((o) => o.stage != OrderStage.delivered).toList(),
-              showTrackButton: true,
-              showFeedbackButton: false,
-            ),
-            _OrdersList(
-              orders: _orders.where((o) => o.stage == OrderStage.delivered).toList(),
-              showTrackButton: false,
-              showFeedbackButton: true,
-            ),
-          ],
+        child: Obx(
+          () => TabBarView(
+            controller: _tabController,
+            children: [
+              _OrdersList(
+                orders: _orders.inProgress,
+                showTrackButton: true,
+                showFeedbackButton: false,
+              ),
+              _OrdersList(
+                orders: _orders.completed,
+                showTrackButton: false,
+                showFeedbackButton: true,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -155,7 +121,7 @@ class _OrdersList extends StatelessWidget {
     required this.showFeedbackButton,
   });
 
-  final List<_OrderCardData> orders;
+  final List<LocalOrder> orders;
   final bool showTrackButton;
   final bool showFeedbackButton;
 
@@ -196,26 +162,6 @@ class _OrdersList extends StatelessWidget {
   }
 }
 
-enum OrderStage { processed, shipped, outForDelivery, delivered }
-
-class _OrderCardData {
-  const _OrderCardData({
-    required this.title,
-    required this.transactionId,
-    required this.dateLabel,
-    required this.status,
-    required this.price,
-    required this.stage,
-  });
-
-  final String title;
-  final String transactionId;
-  final String dateLabel;
-  final String status;
-  final double price;
-  final OrderStage stage;
-}
-
 class _OrderCard extends StatelessWidget {
   const _OrderCard({
     required this.data,
@@ -223,7 +169,7 @@ class _OrderCard extends StatelessWidget {
     required this.showFeedbackButton,
   });
 
-  final _OrderCardData data;
+  final LocalOrder data;
   final bool showTrackButton;
   final bool showFeedbackButton;
 
@@ -345,20 +291,25 @@ class _OrderCard extends StatelessWidget {
                 if (showTrackButton)
                   SizedBox(
                     width: ResponsiveHelper.getResponsiveWidth(context, 86),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => OrderTrackingPage(
-                              transactionId: data.transactionId,
-                              title: data.title,
-                              dateLabel: data.dateLabel,
-                              price: data.price,
-                              stage: data.stage,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => OrderTrackingPage(
+                                transactionId: data.transactionId,
+                                title: data.title,
+                                dateLabel: data.dateLabel,
+                                price: data.price,
+                                stage: data.stage,
+                                status: data.status,
+                                deliveryName:
+                                    data.deliveryName ?? 'Delivery Partner',
+                                deliveryPhone:
+                                    data.deliveryPhone ?? '+00 000 0000',
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.goldPrimary,
                         foregroundColor: Colors.white,
