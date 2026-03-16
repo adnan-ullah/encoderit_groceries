@@ -49,7 +49,9 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
   void initState() {
     super.initState();
     _controller = Get.find<ProductController>();
-    _loadCategoryProducts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCategoryProducts();
+    });
   }
 
   Future<void> _loadCategoryProducts() async {

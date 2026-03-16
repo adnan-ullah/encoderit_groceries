@@ -30,7 +30,9 @@ class _BrandDetailsPageState extends State<BrandDetailsPage> {
   void initState() {
     super.initState();
     _controller = Get.find<ProductController>();
-    _loadBrandProducts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadBrandProducts();
+    });
   }
 
   Future<void> _loadBrandProducts() async {
