@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../utils/app_theme.dart';
+import '../repositories/auth_repository.dart';
+import '../services/app_services.dart';
+import '../routes/app_pages.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -146,16 +149,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              Get.snackbar(
-                                'Signed up',
-                                'Account created for ${_nameController.text.trim()}',
-                                snackPosition: SnackPosition.BOTTOM,
-                                backgroundColor: Colors.white,
-                                colorText: AppTheme.textPrimary,
-                                margin: const EdgeInsets.all(12),
-                              );
-                            }
+                            _onSubmit();
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: pillColor,
@@ -226,6 +220,41 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _onSubmit() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    final repo = AppServices.getIt<AuthRepository>();
+    final result = await repo.signUp(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+
+    result.when(
+      success: (_) {
+        Get.snackbar(
+          'Success',
+          'Account created successfully. Please log in.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.white,
+          colorText: AppTheme.textPrimary,
+          margin: const EdgeInsets.all(12),
+        );
+        Get.rootDelegate.offNamed(AppRoutes.login);
+      },
+      failure: (error) {
+        Get.snackbar(
+          'Error',
+          error.message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.white,
+          colorText: AppTheme.textPrimary,
+          margin: const EdgeInsets.all(12),
+        );
+      },
     );
   }
 }
