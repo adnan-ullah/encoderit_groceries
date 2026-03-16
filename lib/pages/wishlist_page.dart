@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
-import '../models/home_models.dart';
+import '../controllers/local_wishlist_controller.dart';
+import '../models/wishlist_item.dart';
 import '../utils/app_theme.dart';
 import 'product_details_page.dart';
 
 class WishlistPage extends StatelessWidget {
   const WishlistPage({super.key});
 
-  static const _items = <WishlistProduct>[
-    WishlistProduct(name: 'Super Food Supplement', unit: 'Piece', price: 380.00),
-    WishlistProduct(name: 'Organic Honey Jar', unit: 'Piece', price: 12.99),
-    WishlistProduct(name: 'Premium Olive Oil', unit: 'Bottle', price: 24.50),
-    WishlistProduct(name: 'Whole Wheat Bread', unit: 'Packet', price: 3.29),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final wishlist = Get.find<LocalWishlistController>();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -31,35 +28,92 @@ class WishlistPage extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: ResponsiveHelper.getResponsivePadding(
-            context,
-            horizontal: 16,
-            vertical: 12,
-          ),
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.72,
+        child: Obx(() {
+          final list = wishlist.items;
+          if (list.isEmpty) {
+            return _buildEmptyState(context);
+          }
+          return Padding(
+            padding: ResponsiveHelper.getResponsivePadding(
+              context,
+              horizontal: 16,
+              vertical: 12,
             ),
-            itemCount: _items.length,
-            itemBuilder: (context, index) {
-              final product = _items[index];
-              return _WishlistCard(product: product);
-            },
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.72,
+              ),
+              itemCount: list.length,
+              itemBuilder: (context, index) {
+                final product = list[index];
+                return _WishlistCard(
+                  product: product,
+                  onRemove: () => wishlist.removeById(product.id),
+                  onAddToCart: () => showProductDetailsSheet(context),
+                );
+              },
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: ResponsiveHelper.getResponsiveWidth(context, 160),
+            height: ResponsiveHelper.getResponsiveHeight(context, 140),
+            decoration: BoxDecoration(
+              color: AppTheme.cyanPale,
+              borderRadius: BorderRadius.circular(
+                ResponsiveHelper.getResponsiveRadius(context, 24),
+              ),
+            ),
+            child: Icon(
+              Icons.favorite_border,
+              size: ResponsiveHelper.getResponsiveSize(context, 64),
+              color: AppTheme.textTertiary,
+            ),
           ),
-        ),
+          ResponsiveHelper.getResponsiveSpacing(context, 24),
+          Text(
+            'Your wishlist is empty',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: AppTheme.textPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          ResponsiveHelper.getResponsiveSpacing(context, 8),
+          Text(
+            'Tap the heart on any product to add it here.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class _WishlistCard extends StatelessWidget {
-  const _WishlistCard({required this.product});
+  const _WishlistCard({
+    required this.product,
+    required this.onRemove,
+    required this.onAddToCart,
+  });
 
-  final WishlistProduct product;
+  final WishlistItem product;
+  final VoidCallback onRemove;
+  final VoidCallback onAddToCart;
 
   @override
   Widget build(BuildContext context) {
@@ -94,23 +148,39 @@ class _WishlistCard extends StatelessWidget {
                       topRight: Radius.circular(radius),
                     ),
                   ),
-                  child: Center(
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 48,
-                      color: AppTheme.textTertiary,
-                    ),
-                  ),
+                  child: product.imageUrl != null && product.imageUrl!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(radius),
+                            topRight: Radius.circular(radius),
+                          ),
+                          child: Image.network(
+                            product.imageUrl!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (_, __, ___) => _placeholderIcon(),
+                          ),
+                        )
+                      : _placeholderIcon(),
                 ),
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: Icon(
-                    product.isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: product.isFavorite
-                        ? AppTheme.goldSecondary
-                        : AppTheme.textSecondary,
-                    size: 20,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: onRemove,
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.favorite,
+                          color: AppTheme.goldSecondary,
+                          size: 20,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(
@@ -119,7 +189,7 @@ class _WishlistCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () => showProductDetailsSheet(context),
+                      onTap: onAddToCart,
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -197,5 +267,14 @@ class _WishlistCard extends StatelessWidget {
       ),
     );
   }
-}
 
+  Widget _placeholderIcon() {
+    return const Center(
+      child: Icon(
+        Icons.image_outlined,
+        size: 48,
+        color: AppTheme.textTertiary,
+      ),
+    );
+  }
+}

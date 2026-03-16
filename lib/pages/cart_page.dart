@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
+import '../controllers/local_cart_controller.dart';
 import '../utils/app_theme.dart';
+import 'checkout_page.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -11,14 +14,6 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> with SingleTickerProviderStateMixin {
-  final List<_CartItem> _items = [
-    const _CartItem(name: 'Capsicum', price: 21.56, oldPrice: 22.00, quantity: 1),
-    const _CartItem(name: 'Almonds', price: 17.28, oldPrice: 18.00, quantity: 1),
-  ];
-
-  double get _subtotal =>
-      _items.fold(0.0, (sum, item) => sum + item.price * item.quantity);
-
   late final AnimationController _emptyAnimController;
   late final Animation<double> _emptyOffset;
 
@@ -45,7 +40,7 @@ class _CartPageState extends State<CartPage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    final hasItems = _items.isNotEmpty;
+    final cart = Get.find<LocalCartController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -61,25 +56,30 @@ class _CartPageState extends State<CartPage> with SingleTickerProviderStateMixin
         ),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: ResponsiveHelper.getResponsivePadding(
-                  context,
-                  horizontal: 16,
-                  vertical: 12,
+        child: Obx(() {
+          final hasItems = cart.items.isNotEmpty;
+          return Column(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: ResponsiveHelper.getResponsivePadding(
+                    context,
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: hasItems
+                      ? _buildCartList(context, cart)
+                      : _buildEmptyState(context),
                 ),
-                child: hasItems ? _buildCartList(context) : _buildEmptyState(context),
               ),
-            ),
-            const Divider(
-              thickness: 1,
-              color: AppTheme.textSecondary,
-            ),
-            _buildSummarySection(context),
-          ],
-        ),
+              const Divider(
+                thickness: 1,
+                color: AppTheme.textSecondary,
+              ),
+              _buildSummarySection(context, cart),
+            ],
+          );
+        }),
       ),
     );
   }
@@ -125,16 +125,17 @@ class _CartPageState extends State<CartPage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildCartList(BuildContext context) {
+  Widget _buildCartList(BuildContext context, LocalCartController cart) {
     final theme = Theme.of(context);
+    final list = cart.items;
     return ListView.separated(
-      itemCount: _items.length,
+      itemCount: list.length,
       separatorBuilder: (_, __) => Divider(
         height: ResponsiveHelper.getResponsiveHeight(context, 16),
         color: Colors.grey.shade200,
       ),
       itemBuilder: (context, index) {
-        final item = _items[index];
+        final item = list[index];
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -194,10 +195,7 @@ class _CartPageState extends State<CartPage> with SingleTickerProviderStateMixin
                         icon: Icons.remove,
                         onPressed: () {
                           if (item.quantity > 1) {
-                            setState(() {
-                              _items[index] =
-                                  item.copyWith(quantity: item.quantity - 1);
-                            });
+                            cart.updateQuantityAt(index, item.quantity - 1);
                           }
                         },
                       ),
@@ -215,18 +213,13 @@ class _CartPageState extends State<CartPage> with SingleTickerProviderStateMixin
                       _QuantityButton(
                         icon: Icons.add,
                         onPressed: () {
-                          setState(() {
-                            _items[index] =
-                                item.copyWith(quantity: item.quantity + 1);
-                          });
+                          cart.updateQuantityAt(index, item.quantity + 1);
                         },
                       ),
                       const Spacer(),
                       TextButton.icon(
                         onPressed: () {
-                          setState(() {
-                            _items.removeAt(index);
-                          });
+                          cart.removeAt(index);
                         },
                         icon: Icon(Icons.delete_outline,
                             color: Colors.red.shade400, size: 18),
@@ -257,93 +250,81 @@ class _CartPageState extends State<CartPage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildSummarySection(BuildContext context) {
+  Widget _buildSummarySection(
+      BuildContext context, LocalCartController cart) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: ResponsiveHelper.getResponsivePadding(
-        context,
-        horizontal: 16,
-        vertical: 14,
-      ),
-      child: Column(
-        children: [
-          Row(
+    return Obx(() => Padding(
+          padding: ResponsiveHelper.getResponsivePadding(
+            context,
+            horizontal: 16,
+            vertical: 14,
+          ),
+          child: Column(
             children: [
-              Text(
-                'Subtotal',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: AppTheme.textPrimary,
-                  fontWeight: FontWeight.w600,
+              Row(
+                children: [
+                  Text(
+                    'Subtotal',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    '\$${cart.subtotal.toStringAsFixed(2)}',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              ResponsiveHelper.getResponsiveSpacing(context, 12),
+              SizedBox(
+                width: double.infinity,
+                height: ResponsiveHelper.getResponsiveHeight(context, 52),
+                child: ElevatedButton(
+                  onPressed: cart.items.isEmpty
+                      ? null
+                      : () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const CheckoutPage(),
+                            ),
+                          );
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.goldPrimary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        ResponsiveHelper.getResponsiveRadius(context, 28),
+                      ),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'Proceed to Checkout',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
-              const Spacer(),
+              ResponsiveHelper.getResponsiveSpacing(context, 10),
               Text(
-                '\$${_subtotal.toStringAsFixed(2)}',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: AppTheme.textPrimary,
-                  fontWeight: FontWeight.w700,
+                'Shipping, Taxes & Discount Calculate at Checkout',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: AppTheme.textSecondary,
                 ),
               ),
             ],
           ),
-          ResponsiveHelper.getResponsiveSpacing(context, 12),
-          SizedBox(
-            width: double.infinity,
-            height: ResponsiveHelper.getResponsiveHeight(context, 52),
-            child: ElevatedButton(
-              onPressed: _items.isEmpty ? null : () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.goldPrimary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(
-                    ResponsiveHelper.getResponsiveRadius(context, 28),
-                  ),
-                ),
-                elevation: 0,
-              ),
-              child: Text(
-                'Proceed to Checkout',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ),
-          ResponsiveHelper.getResponsiveSpacing(context, 10),
-          Text(
-            'Shipping, Taxes & Discount Calculate at Checkout',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: AppTheme.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
+        ));
   }
-}
-
-class _CartItem {
-  const _CartItem({
-    required this.name,
-    required this.price,
-    this.oldPrice,
-    this.quantity = 1,
-  });
-
-  final String name;
-  final double price;
-  final double? oldPrice;
-  final int quantity;
-
-  _CartItem copyWith({int? quantity}) => _CartItem(
-        name: name,
-        price: price,
-        oldPrice: oldPrice,
-        quantity: quantity ?? this.quantity,
-      );
 }
 
 class _QuantityButton extends StatelessWidget {
@@ -380,4 +361,3 @@ class _QuantityButton extends StatelessWidget {
     );
   }
 }
-

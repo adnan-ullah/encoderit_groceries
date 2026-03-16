@@ -53,6 +53,9 @@ dependencies:
   freezed_annotation: ^2.4.1
   json_annotation: ^4.9.0
 
+  # Render HTML (e.g. product short description from API)
+  flutter_widget_from_html: ^0.16.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

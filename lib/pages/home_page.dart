@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../controllers/brand_controller.dart';
 import '../controllers/category_controller.dart';
+import '../controllers/local_wishlist_controller.dart';
 import '../controllers/product_controller.dart';
 import '../models/category/category_model.dart';
 import '../models/home_models.dart';
@@ -613,11 +614,7 @@ class _HomePageState extends State<HomePage> {
                         Positioned(
                           top: 8,
                           right: 8,
-                          child: Icon(
-                            Icons.favorite_border,
-                            color: AppTheme.textSecondary,
-                            size: 20,
-                          ),
+                          child: _WishlistHeart(product: item),
                         ),
                         Positioned(
                           bottom: 8,
@@ -805,11 +802,7 @@ class _HomePageState extends State<HomePage> {
                     Positioned(
                       top: 8,
                       right: 8,
-                      child: Icon(
-                        Icons.favorite_border,
-                        color: AppTheme.textSecondary,
-                        size: 20,
-                      ),
+                      child: _WishlistHeart(product: product),
                     ),
                     Positioned(
                       bottom: 8,
@@ -1056,13 +1049,7 @@ class _HomePageState extends State<HomePage> {
                     Positioned(
                       top: 8,
                       right: 8,
-                      child: Icon(
-                        false ? Icons.favorite : Icons.favorite_border,
-                        color: false
-                            ? AppTheme.goldSecondary
-                            : AppTheme.textSecondary,
-                        size: 20,
-                      ),
+                      child: _WishlistHeart(product: product),
                     ),
                     Positioned(
                       bottom: 8,
@@ -1217,6 +1204,42 @@ class _ProductCardImage extends StatelessWidget {
         placeholder: 'assets/images/offer_banner_3.png',
         image: imageUrl!,
         fit: BoxFit.cover,
+      ),
+    );
+  }
+}
+
+class _WishlistHeart extends StatelessWidget {
+  const _WishlistHeart({required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!Get.isRegistered<LocalWishlistController>()) {
+      Get.put(LocalWishlistController(), permanent: true);
+    }
+    final wishlist = Get.find<LocalWishlistController>();
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => wishlist.toggleProduct(product),
+        borderRadius: BorderRadius.circular(14),
+        child: CircleAvatar(
+          radius: 14,
+          backgroundColor: AppTheme.lightBackground,
+          child: Obx(() {
+            final isFavorite = wishlist.isInWishlist(product.id);
+            return Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: isFavorite
+                  ? AppTheme.goldSecondary
+                  : AppTheme.textSecondary,
+              size: 16,
+            );
+          }),
+        ),
       ),
     );
   }

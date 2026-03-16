@@ -4,6 +4,8 @@ import '../controllers/brand_controller.dart';
 import '../controllers/category_controller.dart';
 import '../controllers/product_controller.dart';
 import '../controllers/auth_controller.dart';
+import '../controllers/local_cart_controller.dart';
+import '../controllers/local_wishlist_controller.dart';
 import '../services/app_services.dart';
 import 'nav_shell.dart';
 import '../pages/product_page.dart';
@@ -110,6 +112,11 @@ class AppPages {
         GetPage(
           name: AppRoutes.cart,
           page: () => const CartPage(),
+          binding: BindingsBuilder(() {
+            if (!Get.isRegistered<LocalCartController>()) {
+              Get.put(LocalCartController(), permanent: true);
+            }
+          }),
         ),
         GetPage(
           name: AppRoutes.profile,
@@ -118,6 +125,11 @@ class AppPages {
         GetPage(
           name: AppRoutes.favorites,
           page: () => const WishlistPage(),
+          binding: BindingsBuilder(() {
+            if (!Get.isRegistered<LocalWishlistController>()) {
+              Get.put(LocalWishlistController(), permanent: true);
+            }
+          }),
         ),
         // GetPage(
         //   name: AppRoutes.todos,
