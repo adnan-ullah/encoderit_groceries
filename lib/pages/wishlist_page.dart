@@ -3,9 +3,10 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../controllers/wishlist_controller.dart';
+import '../models/product/product_model.dart';
 import '../models/wishlist/wishlist_item.dart';
 import '../utils/app_theme.dart';
-import 'product_details_page.dart';
+import '../widgets/product_grid_card.dart';
 
 class WishlistPage extends StatelessWidget {
   const WishlistPage({super.key});
@@ -48,13 +49,42 @@ class WishlistPage extends StatelessWidget {
               ),
               itemCount: list.length,
               itemBuilder: (context, index) {
-                final product = list[index];
-                return _WishlistCard(
-                  product: product,
-                  onRemove: () => wishlist.removeById(product.id),
-                  onAddToCart: () =>
-                      showProductDetailsSheet(context /*, product: ???*/),
+                final item = list[index];
+                // WishlistItem only has a subset of fields; we map it back
+                // into a lightweight Product so ProductGridCard can render it.
+                final product = Product(
+                  id: item.productId ?? index,
+                  name: item.name,
+                  slug: item.name.toLowerCase().replaceAll(' ', '-'),
+                  price: item.price.toStringAsFixed(2),
+                  regularPrice: item.price.toStringAsFixed(2),
+                  images: item.imageUrl != null && item.imageUrl!.isNotEmpty
+                      ? [
+                          ProductImage(
+                            id: 0,
+                            name: item.name,
+                            src: item.imageUrl!,
+                          ),
+                        ]
+                      : const [],
+                  categories: [
+                    ProductCategory(
+                      id: 0,
+                      name: item.unit,
+                      slug: item.unit.toLowerCase().replaceAll(' ', '-'),
+                    ),
+                  ],
+                  brands: const [],
+                  tags: const [],
+                  attributes: const [],
+                  defaultAttributes: const [],
+                  variations: const [],
+                  groupedProducts: const [],
+                  relatedIds: const [],
+                  metaData: const [],
                 );
+
+                return ProductGridCard(product: product);
               },
             ),
           );
