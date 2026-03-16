@@ -3,117 +3,54 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../controllers/product_controller.dart';
-import '../controllers/local_wishlist_controller.dart';
-import '../models/product/product_model.dart';
-import '../models/product/product_model.dart' hide ProductImage;
-import '../routes/app_pages.dart';
-import '../utils/models/ProductImage.dart';
-import 'sorting_page.dart';
-import 'product_details_page.dart';
-import '../utils/app_theme.dart';
 
-class CategoryDetailsPage extends StatefulWidget {
-  const CategoryDetailsPage({
+import '../models/product/product_model.dart' hide ProductImage;
+import '../utils/app_theme.dart';
+import '../utils/models/ProductImage.dart';
+import 'product_details_page.dart';
+
+class BrandDetailsPage extends StatefulWidget {
+  const BrandDetailsPage({
     super.key,
-    required this.categoryName,
-    this.categoryId,
+    required this.brandName,
+    this.brandId,
   });
 
-  final String categoryName;
-  final int? categoryId;
+  final String brandName;
+  final int? brandId;
 
   @override
-  State<CategoryDetailsPage> createState() => _CategoryDetailsPageState();
+  State<BrandDetailsPage> createState() => _BrandDetailsPageState();
 }
 
-class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
-  static SortOption _currentSort = SortOption.popularity;
-
+class _BrandDetailsPageState extends State<BrandDetailsPage> {
   late final ProductController _controller;
-
-  List<Product> _filteredProducts() {
-    final all = _controller.items;
-    if (all.isEmpty) return const [];
-
-    // Filter strictly by visible category name so behaviour is
-    // identical whether we navigated from Home or Category list.
-    final targetName = widget.categoryName.trim().toLowerCase();
-    return all
-        .where(
-          (p) => p.categories.any(
-            (c) => c.name.trim().toLowerCase() == targetName,
-          ),
-        )
-        .toList();
-  }
-
-  static double _productPrice(Product p) {
-    return double.tryParse(
-          p.price ?? p.salePrice ?? p.regularPrice ?? '0',
-        ) ??
-        0.0;
-  }
-
-  static DateTime? _productDate(Product p) {
-    final s = p.dateCreated ?? p.dateModified;
-    if (s == null || s.isEmpty) return null;
-    return DateTime.tryParse(s);
-  }
-
-  List<Product> _filteredAndSortedProducts() {
-    final list = List<Product>.from(_filteredProducts());
-    if (list.isEmpty) return list;
-
-    switch (_currentSort) {
-      case SortOption.popularity:
-        list.sort((a, b) => (b.totalSales ?? 0).compareTo(a.totalSales ?? 0));
-        break;
-      case SortOption.newest:
-        list.sort((a, b) {
-          final da = _productDate(a);
-          final db = _productDate(b);
-          if (da == null && db == null) return 0;
-          if (da == null) return 1;
-          if (db == null) return -1;
-          return db.compareTo(da);
-        });
-        break;
-      case SortOption.priceLowToHigh:
-        list.sort((a, b) => _productPrice(a).compareTo(_productPrice(b)));
-        break;
-      case SortOption.priceHighToLow:
-        list.sort((a, b) => _productPrice(b).compareTo(_productPrice(a)));
-        break;
-    }
-    return list;
-  }
 
   @override
   void initState() {
     super.initState();
     _controller = Get.find<ProductController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadCategoryProducts();
+      _loadBrandProducts();
     });
   }
 
-  Future<void> _loadCategoryProducts() async {
-    // Always load the full product list; this screen filters
-    // locally by category id/name to avoid any backend quirks.
+  Future<void> _loadBrandProducts() async {
     await _controller.loadItems();
   }
 
-  static String _sortOptionLabel(SortOption option) {
-    switch (option) {
-      case SortOption.popularity:
-        return 'Popularity';
-      case SortOption.newest:
-        return 'Newest';
-      case SortOption.priceLowToHigh:
-        return 'Price: Low to High';
-      case SortOption.priceHighToLow:
-        return 'Price: High to Low';
-    }
+  List<Product> _filteredProducts() {
+    final all = _controller.items;
+    if (all.isEmpty) return const [];
+
+    final targetName = widget.brandName.trim().toLowerCase();
+    return all
+        .where(
+          (p) => p.brands.any(
+            (b) => b.name.trim().toLowerCase() == targetName,
+          ),
+        )
+        .toList();
   }
 
   @override
@@ -126,18 +63,8 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => Get.back(),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () =>
-                Get.rootDelegate.toNamed(AppRoutes.search),
-          ),
-          SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 8)),
-        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -157,7 +84,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.categoryName,
+                          widget.brandName,
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: AppTheme.textPrimary,
                             fontWeight: FontWeight.w800,
@@ -176,45 +103,12 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
                       ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: () async {
-                      final result = await showModalBottomSheet<SortOption>(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.white,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(22),
-                          ),
-                        ),
-                        builder: (context) => SortingPage(
-                          initial: _currentSort,
-                        ),
-                      );
-
-                      if (result != null) {
-                        setState(() => _currentSort = result);
-                        if (context.mounted) {
-                          Get.snackbar(
-                            'Sorting applied',
-                            _sortOptionLabel(result),
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.white,
-                            colorText: AppTheme.textPrimary,
-                            margin: const EdgeInsets.all(12),
-                            duration: const Duration(seconds: 2),
-                          );
-                        }
-                      }
-                    },
-                    icon: const Icon(Icons.tune),
-                  ),
                 ],
               ),
               ResponsiveHelper.getResponsiveSpacing(context, 10),
               Expanded(
                 child: Obx(() {
-                  final products = _filteredAndSortedProducts();
+                  final products = _filteredProducts();
 
                   if (_controller.isLoading.value && products.isEmpty) {
                     return const Center(child: CircularProgressIndicator());
@@ -236,7 +130,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
                   if (products.isEmpty) {
                     return Center(
                       child: Text(
-                        'No products found in this category.',
+                        'No products found for this brand.',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: AppTheme.textSecondary,
                         ),
@@ -256,7 +150,7 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
                     itemCount: products.length,
                     itemBuilder: (context, index) {
                       final product = products[index];
-                      return _CategoryProductCard(product: product);
+                      return _BrandProductCard(product: product);
                     },
                   );
                 }),
@@ -269,8 +163,8 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
   }
 }
 
-class _CategoryProductCard extends StatelessWidget {
-  const _CategoryProductCard({required this.product});
+class _BrandProductCard extends StatelessWidget {
+  const _BrandProductCard({required this.product});
 
   final Product product;
 
@@ -305,10 +199,14 @@ class _CategoryProductCard extends StatelessWidget {
                       : null,
                   radius: radius,
                 ),
-                Positioned(
+                const Positioned(
                   top: 8,
                   right: 8,
-                  child: _CategoryWishlistHeart(product: product),
+                  child: Icon(
+                    Icons.favorite_border,
+                    color: AppTheme.textSecondary,
+                    size: 20,
+                  ),
                 ),
                 Positioned(
                   bottom: 8,
@@ -421,46 +319,4 @@ class _CategoryProductCard extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-class _CategoryWishlistHeart extends StatelessWidget {
-  const _CategoryWishlistHeart({required this.product});
-
-  final Product product;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!Get.isRegistered<LocalWishlistController>()) {
-      Get.put(LocalWishlistController(), permanent: true);
-    }
-    final wishlist = Get.find<LocalWishlistController>();
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => wishlist.toggleProduct(product),
-        borderRadius: BorderRadius.circular(14),
-        child: CircleAvatar(
-          radius: 14,
-          backgroundColor: AppTheme.lightBackground,
-          child: Obx(() {
-            final isFavorite = wishlist.isInWishlist(product.id);
-            return Icon(
-              isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: isFavorite
-                  ? AppTheme.goldSecondary
-                  : AppTheme.textSecondary,
-              size: 16,
-            );
-          }),
-        ),
-      ),
-    );
-  }
-}
-
-
 

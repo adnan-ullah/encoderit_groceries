@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
+import '../controllers/product_controller.dart';
+import '../models/product/product_model.dart' hide ProductImage;
 import '../utils/app_theme.dart';
+import '../utils/models/ProductImage.dart';
 import 'product_details_page.dart';
 
 class SearchPage extends StatefulWidget {
@@ -14,15 +17,18 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final _controller = TextEditingController();
+  late final ProductController _productController;
 
-  static const _all = <_SearchProduct>[
-    _SearchProduct(name: '108-Piece Hand Tool Set', price: 480.00, isFavorite: true),
-    _SearchProduct(name: '118 Piece Tool Set for Home', price: 240.00),
-    _SearchProduct(name: '12 Piece Kitchen Set Plastic', price: 330.00),
-    _SearchProduct(name: '14-piece Kitchen Tool', price: 350.00),
-    _SearchProduct(name: 'Non-stick Cookware Set', price: 308.00, isFavorite: true),
-    _SearchProduct(name: 'Mini Dill Pickles', price: 108.00),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _productController = Get.find<ProductController>();
+    if (_productController.items.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _productController.loadItems();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -32,18 +38,15 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final query = _controller.text.trim().toLowerCase();
-    final items = query.isEmpty
-        ? _all
-        : _all.where((p) => p.name.toLowerCase().contains(query)).toList();
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () => Get.back(),
+          onPressed: () {
+            Get.rootDelegate.popRoute();
+          },
         ),
         title: Text(
           'Search',
@@ -68,18 +71,64 @@ class _SearchPageState extends State<SearchPage> {
               ),
               ResponsiveHelper.getResponsiveSpacing(context, 12),
               Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.72,
-                  ),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    return _SearchProductCard(product: items[index]);
-                  },
-                ),
+                child: Obx(() {
+                  final query = _controller.text.trim().toLowerCase();
+                  final allProducts = _productController.items.toList();
+                  final List<Product> items = query.isEmpty
+                      ? allProducts
+                      : allProducts
+                          .where(
+                            (p) =>
+                                p.name
+                                    .toLowerCase()
+                                    .contains(query) ||
+                                (p.shortDescription ?? '')
+                                    .toLowerCase()
+                                    .contains(query) ||
+                                p.categories.any(
+                                  (c) => c.name
+                                      .toLowerCase()
+                                      .contains(query),
+                                ),
+                          )
+                          .toList();
+
+                  final loading =
+                      _productController.isLoading.value && items.isEmpty;
+
+                  if (loading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (items.isEmpty) {
+                    return Center(
+                      child: Text(
+                        query.isEmpty
+                            ? 'No products available.'
+                            : 'No products found for \"$query\".',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(color: AppTheme.textSecondary),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }
+
+                  return GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 0.72,
+                    ),
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      return _SearchProductCard(product: items[index]);
+                    },
+                  );
+                }),
               ),
             ],
           ),
@@ -139,22 +188,10 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-class _SearchProduct {
-  const _SearchProduct({
-    required this.name,
-    required this.price,
-    this.isFavorite = false,
-  });
-
-  final String name;
-  final double price;
-  final bool isFavorite;
-}
-
 class _SearchProductCard extends StatelessWidget {
   const _SearchProductCard({required this.product});
 
-  final _SearchProduct product;
+  final Product product;
 
   @override
   Widget build(BuildContext context) {
@@ -181,28 +218,18 @@ class _SearchProductCard extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppTheme.lightCard,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(radius),
-                      topRight: Radius.circular(radius),
-                    ),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 48,
-                      color: AppTheme.textTertiary,
-                    ),
-                  ),
+                ProductImage(
+                  imageUrl: product.images.isNotEmpty
+                      ? product.images.first.src
+                      : null,
+                  radius: radius,
                 ),
                 Positioned(
                   top: 8,
                   right: 8,
                   child: Icon(
-                    product.isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: product.isFavorite ? AppTheme.error : AppTheme.textSecondary,
+                    Icons.favorite_border,
+                    color: AppTheme.textSecondary,
                     size: 20,
                   ),
                 ),
@@ -212,7 +239,8 @@ class _SearchProductCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () => showProductDetailsSheet(context),
+                      onTap: () =>
+                          showProductDetailsSheet(context, product: product),
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -266,12 +294,56 @@ class _SearchProductCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
-                    '\$${product.price.toStringAsFixed(2)}',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      color: AppTheme.goldPrimary,
-                      fontWeight: FontWeight.w800,
+                    (product.shortDescription ?? '').isNotEmpty
+                        ? product.shortDescription!
+                        : (product.categories.isNotEmpty
+                            ? product.categories.first.name
+                            : ''),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: AppTheme.textTertiary,
                     ),
+                  ),
+                  Builder(
+                    builder: (context) {
+                      final currentPrice = double.tryParse(
+                            product.price ??
+                                product.salePrice ??
+                                product.regularPrice ??
+                                '0',
+                          ) ??
+                          0;
+                      final oldPrice = double.tryParse(
+                        product.regularPrice ?? '',
+                      );
+
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            '\$${currentPrice.toStringAsFixed(2)}',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: AppTheme.goldPrimary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          if (oldPrice != null && oldPrice > currentPrice) ...[
+                            const SizedBox(width: 6),
+                            Text(
+                              '\$${oldPrice.toStringAsFixed(2)}',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppTheme.error,
+                                decoration: TextDecoration.lineThrough,
+                              ),
+                            ),
+                          ],
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),

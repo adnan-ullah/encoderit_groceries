@@ -14,7 +14,7 @@ import '../services/app_services.dart';
 import '../utils/app_theme.dart';
 import 'product_details_page.dart';
 import 'category_details_page.dart';
-import '../services/app_services.dart';
+import 'brand_details_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -956,10 +956,13 @@ class _HomePageState extends State<HomePage> {
           itemBuilder: (context, index) {
             final brand = brands[index];
             return InkWell(
-              onTap: () => Get.rootDelegate.toNamed(
-                AppRoutes.categoryDetails,
-                arguments: brand,
-              ),
+              onTap: () {
+                debugPrint('Tapped brand: ${brand.name}');
+                Get.to(() => BrandDetailsPage(
+                      brandId: brand.id,
+                      brandName: brand.name,
+                    ));
+              },
               child: SizedBox(
                 width: ResponsiveHelper.getResponsiveWidth(context, cardWidth),
                 child: Container(
