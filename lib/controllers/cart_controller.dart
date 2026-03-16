@@ -1,7 +1,7 @@
 import 'package:gems_core/gems_core.dart';
 import 'package:gems_data_layer/gems_data_layer.dart';
 
-import '../models/cart_item.dart';
+import '../models/cart_item/cart_item.dart';
 import '../repositories/cart_repository.dart';
 
 class CartController extends BaseListController<CartItem>

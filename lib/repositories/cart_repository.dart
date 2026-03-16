@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:gems_core/gems_core.dart';
 import 'package:gems_data_layer/gems_data_layer.dart';
 
-import '../models/cart_item.dart';
+import '../models/cart_item/cart_item.dart';
 
 /// CartRepository - purely local/offline cart using DatabaseService.
 class CartRepository extends BaseRepository<CartItem> {
