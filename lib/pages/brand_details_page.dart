@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../controllers/product_controller.dart';
-import '../models/product/product_model.dart';
+
+import '../models/product/product_model.dart' hide ProductImage;
 import '../utils/app_theme.dart';
+import '../utils/models/ProductImage.dart';
 import 'product_details_page.dart';
 
 class BrandDetailsPage extends StatefulWidget {
@@ -72,23 +74,35 @@ class _BrandDetailsPageState extends State<BrandDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                widget.brandName,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: AppTheme.textPrimary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Obx(() {
-                final products = _filteredProducts();
-                return Text(
-                  '(${products.length} Products Found)',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textSecondary,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.brandName,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: AppTheme.textPrimary,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Obx(() {
+                          final products = _filteredProducts();
+                          return Text(
+                            '(${products.length} Products Found)',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
                   ),
-                );
-              }),
+                ],
+              ),
               ResponsiveHelper.getResponsiveSpacing(context, 10),
               Expanded(
                 child: Obx(() {
@@ -177,7 +191,7 @@ class _BrandProductCard extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                _BrandProductImage(
+                ProductImage(
                   imageUrl: product.images.isNotEmpty
                       ? product.images.first.src
                       : null,
@@ -299,49 +313,6 @@ class _BrandProductCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _BrandProductImage extends StatelessWidget {
-  const _BrandProductImage({
-    required this.imageUrl,
-    required this.radius,
-  });
-
-  final String? imageUrl;
-  final double radius;
-
-  @override
-  Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.only(
-      topLeft: Radius.circular(radius),
-      topRight: Radius.circular(radius),
-    );
-
-    if (imageUrl == null || imageUrl!.isEmpty) {
-      return Container(
-        decoration: BoxDecoration(
-          color: AppTheme.lightCard,
-          borderRadius: borderRadius,
-        ),
-        child: const Center(
-          child: Icon(
-            Icons.image_outlined,
-            size: 48,
-            color: AppTheme.textTertiary,
-          ),
-        ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: FadeInImage.assetNetwork(
-        placeholder: 'assets/images/offer_banner_3.png',
-        image: imageUrl!,
-        fit: BoxFit.cover,
       ),
     );
   }

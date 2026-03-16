@@ -3,8 +3,9 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../controllers/product_controller.dart';
-import '../models/product/product_model.dart';
+import '../models/product/product_model.dart' hide ProductImage;
 import '../routes/app_pages.dart';
+import '../utils/models/ProductImage.dart';
 import 'sorting_page.dart';
 import 'product_details_page.dart';
 import '../utils/app_theme.dart';
@@ -236,7 +237,7 @@ class _CategoryProductCard extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                _ProductImage(
+                ProductImage(
                   imageUrl: product.images.isNotEmpty
                       ? product.images.first.src
                       : null,
@@ -362,47 +363,3 @@ class _CategoryProductCard extends StatelessWidget {
     );
   }
 }
-
-class _ProductImage extends StatelessWidget {
-  const _ProductImage({
-    required this.imageUrl,
-    required this.radius,
-  });
-
-  final String? imageUrl;
-  final double radius;
-
-  @override
-  Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.only(
-      topLeft: Radius.circular(radius),
-      topRight: Radius.circular(radius),
-    );
-
-    if (imageUrl == null || imageUrl!.isEmpty) {
-      return Container(
-        decoration: BoxDecoration(
-          color: AppTheme.lightCard,
-          borderRadius: borderRadius,
-        ),
-        child: const Center(
-          child: Icon(
-            Icons.image_outlined,
-            size: 48,
-            color: AppTheme.textTertiary,
-          ),
-        ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: FadeInImage.assetNetwork(
-        placeholder: 'assets/images/offer_banner_3.png',
-        image: imageUrl!,
-        fit: BoxFit.cover,
-      ),
-    );
-  }
-}
-

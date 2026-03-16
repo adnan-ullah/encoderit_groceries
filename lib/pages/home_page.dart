@@ -14,7 +14,6 @@ import '../utils/app_theme.dart';
 import 'product_details_page.dart';
 import 'category_details_page.dart';
 import 'brand_details_page.dart';
-import '../services/app_services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
