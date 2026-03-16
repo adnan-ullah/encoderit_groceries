@@ -55,6 +55,7 @@ dependencies:
 
   # Render HTML (e.g. product short description from API)
   flutter_widget_from_html: ^0.16.1
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -76,7 +77,13 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon.png"
+  min_sdk_android: 21
+  android_adaptive_icon_foreground: "assets/images/app_icon.png"
+  android_adaptive_icon_background: "#FFFFFFFF"  # solid white
 # The following section is specific to Flutter packages.
 flutter:
 
