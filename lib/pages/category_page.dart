@@ -27,7 +27,7 @@ class CategoryPage extends StatelessWidget {
         elevation: 0,
         titleSpacing: ResponsiveHelper.getResponsiveWidth(context, 16),
         title: Text(
-          'StoreKing',
+          'Encoder Groceries',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: AppTheme.goldPrimary,
               ),
