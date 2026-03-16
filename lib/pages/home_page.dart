@@ -1210,28 +1210,26 @@ class _ProductCardImage extends StatelessWidget {
       topRight: Radius.circular(radius),
     );
 
-    if (imageUrl == null || imageUrl!.isEmpty) {
-      return Container(
-        decoration: BoxDecoration(
+    return AspectRatio(
+      aspectRatio: 1,
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: Container(
           color: AppTheme.lightCard,
-          borderRadius: borderRadius,
+          child: imageUrl == null || imageUrl!.isEmpty
+              ? const Center(
+                  child: Icon(
+                    Icons.image_outlined,
+                    size: 48,
+                    color: AppTheme.textTertiary,
+                  ),
+                )
+              : FadeInImage.assetNetwork(
+                  placeholder: 'assets/images/offer_banner_3.png',
+                  image: imageUrl!,
+                  fit: BoxFit.cover,
+                ),
         ),
-        child: const Center(
-          child: Icon(
-            Icons.image_outlined,
-            size: 48,
-            color: AppTheme.textTertiary,
-          ),
-        ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: FadeInImage.assetNetwork(
-        placeholder: 'assets/images/offer_banner_3.png',
-        image: imageUrl!,
-        fit: BoxFit.cover,
       ),
     );
   }
