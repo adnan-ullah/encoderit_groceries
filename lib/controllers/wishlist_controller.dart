@@ -1,7 +1,7 @@
 import 'package:gems_core/gems_core.dart';
 import 'package:gems_data_layer/gems_data_layer.dart';
 
-import '../models/wishlist_item.dart';
+import '../models/wishlist/wishlist_item.dart';
 import '../models/product/product_model.dart';
 import '../repositories/wishlist_repository.dart';
 

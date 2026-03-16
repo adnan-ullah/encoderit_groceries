@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../controllers/wishlist_controller.dart';
-import '../models/wishlist_item.dart';
+import '../models/wishlist/wishlist_item.dart';
 import '../utils/app_theme.dart';
 import 'product_details_page.dart';
 

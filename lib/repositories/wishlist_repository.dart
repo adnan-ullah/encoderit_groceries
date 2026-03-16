@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:gems_core/gems_core.dart';
 import 'package:gems_data_layer/gems_data_layer.dart';
 
-import '../models/wishlist_item.dart';
+import '../models/wishlist/wishlist_item.dart';
 
 /// WishlistRepository - purely local/offline wishlist using DatabaseService
 /// but still extending BaseRepository so it fits the same pattern.
