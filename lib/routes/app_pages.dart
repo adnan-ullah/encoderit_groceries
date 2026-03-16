@@ -4,7 +4,6 @@ import '../controllers/brand_controller.dart';
 import '../controllers/category_controller.dart';
 import '../controllers/product_controller.dart';
 import '../controllers/auth_controller.dart';
-import '../controllers/local_cart_controller.dart';
 import '../services/app_services.dart';
 import 'nav_shell.dart';
 import '../pages/product_page.dart';
@@ -12,6 +11,7 @@ import '../pages/login_page.dart';
 import '../pages/home_page.dart';
 import '../pages/category_page.dart';
 import '../pages/cart_page.dart';
+import '../controllers/cart_controller.dart';
 import '../pages/profile_page.dart';
 import '../pages/wishlist_page.dart';
 import '../controllers/wishlist_controller.dart';
@@ -114,8 +114,8 @@ class AppPages {
           name: AppRoutes.cart,
           page: () => const CartPage(),
           binding: BindingsBuilder(() {
-            if (!Get.isRegistered<LocalCartController>()) {
-              Get.put(LocalCartController(), permanent: true);
+            if (!Get.isRegistered<CartController>()) {
+              Get.put(AppServices.getIt<CartController>(), permanent: true);
             }
           }),
         ),

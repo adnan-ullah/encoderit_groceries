@@ -3,7 +3,7 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
-import '../controllers/local_cart_controller.dart';
+import '../controllers/cart_controller.dart';
 import '../controllers/wishlist_controller.dart';
 import '../services/app_services.dart';
 import '../models/product/product_model.dart';
@@ -43,10 +43,10 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
     required double? oldPriceValue,
     required int quantity,
   }) {
-    if (!Get.isRegistered<LocalCartController>()) {
-      Get.put(LocalCartController(), permanent: true);
+    if (!Get.isRegistered<CartController>()) {
+      Get.put(AppServices.getIt<CartController>(), permanent: true);
     }
-    final cart = Get.find<LocalCartController>();
+    final cart = Get.find<CartController>();
     cart.addProduct(
       name: name,
       price: priceValue,

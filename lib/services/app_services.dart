@@ -7,6 +7,7 @@ import '../di/product/product_di.dart';
 import '../di/auth/auth_di.dart';
 import '../di/category/category_di.dart';
 import '../di/brand/brand_di.dart';
+import '../di/cart/cart_di.dart';
 import '../di/wishlist/wishlist_di.dart';
 
 
@@ -49,6 +50,7 @@ class AppServices {
     await setupProductDomainServices();
     await setupCategoryDomainServices();
     await setupBrandDomainServices();
+    await setupCartDomainServices();
     await setupWishlistDomainServices();
     // await setupCartDomainServices();
     // setupFavoritesDomainServices();

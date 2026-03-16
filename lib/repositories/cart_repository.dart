@@ -1,0 +1,57 @@
+import 'dart:convert';
+
+import 'package:gems_core/gems_core.dart';
+import 'package:gems_data_layer/gems_data_layer.dart';
+
+import '../models/cart_item.dart';
+
+/// CartRepository - purely local/offline cart using DatabaseService.
+class CartRepository extends BaseRepository<CartItem> {
+  CartRepository({
+    required super.apiService,
+    required super.databaseService,
+    required super.syncService,
+  }) : super(baseEndpoint: 'cart'); // logical key only
+
+  static const _cacheKey = 'cart_all';
+
+  @override
+  CartItem fromJson(Map<String, dynamic> json) =>
+      CartItem.fromJson(json);
+
+  @override
+  Future<Result<List<CartItem>>> getAll({bool useCache = true}) async {
+    try {
+      final raw = databaseService.get<String>(_cacheKey);
+      if (raw == null || raw.isEmpty) {
+        return Result.success(const []);
+      }
+      final list = (jsonDecode(raw) as List)
+          .map(
+            (e) => CartItem.fromJson(
+              Map<String, dynamic>.from(e as Map),
+            ),
+          )
+          .toList();
+      return Result.success(list);
+    } catch (e, stackTrace) {
+      return Result.failure(
+        ApiError(
+          message: 'Failed to load cart from local cache',
+          originalError: e,
+          stackTrace: stackTrace,
+        ),
+      );
+    }
+  }
+
+  Future<void> saveAll(List<CartItem> items) async {
+    await databaseService.save(
+      _cacheKey,
+      jsonEncode(
+        items.map((e) => e.toJson()).toList(),
+      ),
+    );
+  }
+}
+

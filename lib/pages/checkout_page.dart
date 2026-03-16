@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
-import '../controllers/local_cart_controller.dart';
+import '../controllers/cart_controller.dart';
+import '../services/app_services.dart';
 import '../utils/app_theme.dart';
 
 class CheckoutPage extends StatefulWidget {
@@ -121,11 +122,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
   }
 
-  LocalCartController get _cart {
-    if (!Get.isRegistered<LocalCartController>()) {
-      Get.put(LocalCartController(), permanent: true);
+  CartController get _cart {
+    if (!Get.isRegistered<CartController>()) {
+      Get.put(AppServices.getIt<CartController>(), permanent: true);
     }
-    return Get.find<LocalCartController>();
+    return Get.find<CartController>();
   }
 
   @override
@@ -382,7 +383,7 @@ class _PaymentMethodCard extends StatelessWidget {
 class _OrderSummaryCard extends StatelessWidget {
   const _OrderSummaryCard({required this.cart});
 
-  final LocalCartController cart;
+  final CartController cart;
 
   @override
   Widget build(BuildContext context) {
@@ -448,7 +449,7 @@ class _OrderSummaryCard extends StatelessWidget {
 class _BottomBar extends StatelessWidget {
   const _BottomBar({required this.cart});
 
-  final LocalCartController cart;
+  final CartController cart;
 
   @override
   Widget build(BuildContext context) {

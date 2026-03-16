@@ -1,39 +1,22 @@
-/// Local cart line item for dynamic cart/checkout (encoderit_groceries).
-/// Follows the same idea as cart line items: name, price, quantity.
-class CartItem {
-  const CartItem({
-    required this.id,
-    required this.name,
-    required this.price,
-    this.oldPrice,
-    this.quantity = 1,
-    this.productId,
-  });
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:gems_data_layer/gems_data_layer.dart';
 
-  final String id;
-  final int? productId;
-  final String name;
-  final double price;
-  final double? oldPrice;
-  final int quantity;
+part 'cart_item.freezed.dart';
+part 'cart_item.g.dart';
 
-  double get lineTotal => price * quantity;
-
-  CartItem copyWith({
-    String? id,
+/// Local cart line item for dynamic cart/checkout (encoderit_groceries),
+/// following the same freezed/json_serializable pattern as other models.
+@freezed
+class CartItem with _$CartItem implements BaseModel {
+  const factory CartItem({
+    required String id,
     int? productId,
-    String? name,
-    double? price,
+    required String name,
+    required double price,
     double? oldPrice,
-    int? quantity,
-  }) {
-    return CartItem(
-      id: id ?? this.id,
-      productId: productId ?? this.productId,
-      name: name ?? this.name,
-      price: price ?? this.price,
-      oldPrice: oldPrice ?? this.oldPrice,
-      quantity: quantity ?? this.quantity,
-    );
-  }
+    @Default(1) int quantity,
+  }) = _CartItem;
+
+  factory CartItem.fromJson(Map<String, dynamic> json) =>
+      _$CartItemFromJson(json);
 }

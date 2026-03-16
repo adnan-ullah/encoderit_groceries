@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
-import '../controllers/local_cart_controller.dart';
+import '../controllers/cart_controller.dart';
 import '../utils/app_theme.dart';
 import 'checkout_page.dart';
 
@@ -40,7 +40,7 @@ class _CartPageState extends State<CartPage> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    final cart = Get.find<LocalCartController>();
+    final cart = Get.find<CartController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -125,7 +125,7 @@ class _CartPageState extends State<CartPage> with SingleTickerProviderStateMixin
     );
   }
 
-  Widget _buildCartList(BuildContext context, LocalCartController cart) {
+  Widget _buildCartList(BuildContext context, CartController cart) {
     final theme = Theme.of(context);
     final list = cart.items;
     return ListView.separated(
@@ -251,7 +251,7 @@ class _CartPageState extends State<CartPage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildSummarySection(
-      BuildContext context, LocalCartController cart) {
+      BuildContext context, CartController cart) {
     final theme = Theme.of(context);
     return Obx(() => Padding(
           padding: ResponsiveHelper.getResponsivePadding(
