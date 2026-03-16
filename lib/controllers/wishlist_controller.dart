@@ -14,6 +14,13 @@ class WishlistController extends BaseListController<WishlistItem>
   });
 
   @override
+  void onReady() {
+    super.onReady();
+    // Load persisted wishlist items from local DB when controller becomes ready.
+    loadItems();
+  }
+
+  @override
   Future<void> loadItems() async {
     items.clear();
     await handleListResult(() => repository.getAll());
