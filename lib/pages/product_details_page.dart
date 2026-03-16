@@ -4,7 +4,8 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../controllers/local_cart_controller.dart';
-import '../controllers/local_wishlist_controller.dart';
+import '../controllers/wishlist_controller.dart';
+import '../services/app_services.dart';
 import '../models/product/product_model.dart';
 import '../utils/app_theme.dart';
 
@@ -344,10 +345,10 @@ class _FavoriteButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    if (!Get.isRegistered<LocalWishlistController>()) {
-      Get.put(LocalWishlistController(), permanent: true);
+    if (!Get.isRegistered<WishlistController>()) {
+      Get.put(AppServices.getIt<WishlistController>(), permanent: true);
     }
-    final wishlist = Get.find<LocalWishlistController>();
+    final wishlist = Get.find<WishlistController>();
 
     return Obx(() {
       final isFavorite =

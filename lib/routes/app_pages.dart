@@ -5,7 +5,6 @@ import '../controllers/category_controller.dart';
 import '../controllers/product_controller.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/local_cart_controller.dart';
-import '../controllers/local_wishlist_controller.dart';
 import '../services/app_services.dart';
 import 'nav_shell.dart';
 import '../pages/product_page.dart';
@@ -15,6 +14,8 @@ import '../pages/category_page.dart';
 import '../pages/cart_page.dart';
 import '../pages/profile_page.dart';
 import '../pages/wishlist_page.dart';
+import '../controllers/wishlist_controller.dart';
+import '../services/app_services.dart';
 import '../pages/category_details_page.dart';
 import '../pages/offer_details_page.dart';
 import '../pages/search_page.dart';
@@ -126,8 +127,8 @@ class AppPages {
           name: AppRoutes.favorites,
           page: () => const WishlistPage(),
           binding: BindingsBuilder(() {
-            if (!Get.isRegistered<LocalWishlistController>()) {
-              Get.put(LocalWishlistController(), permanent: true);
+            if (!Get.isRegistered<WishlistController>()) {
+              Get.put(AppServices.getIt<WishlistController>(), permanent: true);
             }
           }),
         ),

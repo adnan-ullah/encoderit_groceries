@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 
 import '../controllers/brand_controller.dart';
 import '../controllers/category_controller.dart';
-import '../controllers/local_wishlist_controller.dart';
 import '../controllers/product_controller.dart';
 import '../models/category/category_model.dart';
 import '../models/home_models.dart';
@@ -15,6 +14,8 @@ import '../utils/app_theme.dart';
 import 'product_details_page.dart';
 import 'category_details_page.dart';
 import 'brand_details_page.dart';
+import '../controllers/wishlist_controller.dart';
+import '../services/app_services.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -1243,10 +1244,10 @@ class _WishlistHeart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!Get.isRegistered<LocalWishlistController>()) {
-      Get.put(LocalWishlistController(), permanent: true);
+    if (!Get.isRegistered<WishlistController>()) {
+      Get.put(AppServices.getIt<WishlistController>(), permanent: true);
     }
-    final wishlist = Get.find<LocalWishlistController>();
+    final wishlist = Get.find<WishlistController>();
 
     return Material(
       color: Colors.transparent,

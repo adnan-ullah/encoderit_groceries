@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
-import '../controllers/local_wishlist_controller.dart';
+import '../controllers/wishlist_controller.dart';
 import '../models/wishlist_item.dart';
 import '../utils/app_theme.dart';
 import 'product_details_page.dart';
@@ -12,7 +12,7 @@ class WishlistPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wishlist = Get.find<LocalWishlistController>();
+    final wishlist = Get.find<WishlistController>();
 
     return Scaffold(
       appBar: AppBar(
@@ -52,7 +52,8 @@ class WishlistPage extends StatelessWidget {
                 return _WishlistCard(
                   product: product,
                   onRemove: () => wishlist.removeById(product.id),
-                  onAddToCart: () => showProductDetailsSheet(context),
+                  onAddToCart: () =>
+                      showProductDetailsSheet(context /*, product: ???*/),
                 );
               },
             ),

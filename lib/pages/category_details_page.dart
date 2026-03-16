@@ -3,10 +3,11 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../controllers/product_controller.dart';
-import '../controllers/local_wishlist_controller.dart';
-import '../models/product/product_model.dart';
+import '../controllers/wishlist_controller.dart';
+import '../models/product/product_model.dart' hide ProductImage;
 import '../models/product/product_model.dart' hide ProductImage;
 import '../routes/app_pages.dart';
+import '../services/app_services.dart';
 import '../utils/models/ProductImage.dart';
 import 'sorting_page.dart';
 import 'product_details_page.dart';
@@ -433,10 +434,10 @@ class _CategoryWishlistHeart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!Get.isRegistered<LocalWishlistController>()) {
-      Get.put(LocalWishlistController(), permanent: true);
+    if (!Get.isRegistered<WishlistController>()) {
+      Get.put(AppServices.getIt<WishlistController>(), permanent: true);
     }
-    final wishlist = Get.find<LocalWishlistController>();
+    final wishlist = Get.find<WishlistController>();
 
     return Material(
       color: Colors.transparent,
