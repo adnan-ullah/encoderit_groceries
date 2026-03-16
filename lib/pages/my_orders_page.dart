@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../utils/app_theme.dart';
+import 'order_tracking_page.dart';
 
 class MyOrdersPage extends StatefulWidget {
   const MyOrdersPage({super.key});
@@ -21,7 +22,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
       dateLabel: '22/09/2023',
       status: 'Out For Delivery',
       price: 265.00,
-      isCompleted: false,
+      stage: OrderStage.outForDelivery,
     ),
     _OrderCardData(
       title: 'Organic Avocado Pack',
@@ -29,7 +30,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
       dateLabel: '22/09/2023',
       status: 'Out For Delivery',
       price: 265.00,
-      isCompleted: false,
+      stage: OrderStage.outForDelivery,
     ),
     _OrderCardData(
       title: 'Chicken Breast Fillet',
@@ -37,7 +38,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
       dateLabel: '22/09/2023',
       status: 'Preparing Order',
       price: 265.00,
-      isCompleted: false,
+      stage: OrderStage.processed,
     ),
     _OrderCardData(
       title: 'Fresh Green Beans',
@@ -45,7 +46,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
       dateLabel: '18/09/2023',
       status: 'Delivered',
       price: 199.00,
-      isCompleted: true,
+      stage: OrderStage.delivered,
     ),
     _OrderCardData(
       title: 'Canned Chopped Tomatoes',
@@ -53,7 +54,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
       dateLabel: '15/09/2023',
       status: 'Delivered',
       price: 135.50,
-      isCompleted: true,
+      stage: OrderStage.delivered,
     ),
   ];
 
@@ -80,9 +81,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
         elevation: 0,
         leading: IconButton(
           icon:  Icon(Icons.arrow_back_ios_new),
-          onPressed: () {
-            Navigator.of(context).pop();
-          }
+          onPressed: () => Navigator.of(context).pop(),
         ),
         titleSpacing: 0,
         title: Text(
@@ -133,12 +132,12 @@ class _MyOrdersPageState extends State<MyOrdersPage>
           controller: _tabController,
           children: [
             _OrdersList(
-              orders: _orders.where((o) => !o.isCompleted).toList(),
+              orders: _orders.where((o) => o.stage != OrderStage.delivered).toList(),
               showTrackButton: true,
               showFeedbackButton: false,
             ),
             _OrdersList(
-              orders: _orders.where((o) => o.isCompleted).toList(),
+              orders: _orders.where((o) => o.stage == OrderStage.delivered).toList(),
               showTrackButton: false,
               showFeedbackButton: true,
             ),
@@ -197,6 +196,8 @@ class _OrdersList extends StatelessWidget {
   }
 }
 
+enum OrderStage { processed, shipped, outForDelivery, delivered }
+
 class _OrderCardData {
   const _OrderCardData({
     required this.title,
@@ -204,7 +205,7 @@ class _OrderCardData {
     required this.dateLabel,
     required this.status,
     required this.price,
-    required this.isCompleted,
+    required this.stage,
   });
 
   final String title;
@@ -212,7 +213,7 @@ class _OrderCardData {
   final String dateLabel;
   final String status;
   final double price;
-  final bool isCompleted;
+  final OrderStage stage;
 }
 
 class _OrderCard extends StatelessWidget {
@@ -345,7 +346,19 @@ class _OrderCard extends StatelessWidget {
                   SizedBox(
                     width: ResponsiveHelper.getResponsiveWidth(context, 86),
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => OrderTrackingPage(
+                              transactionId: data.transactionId,
+                              title: data.title,
+                              dateLabel: data.dateLabel,
+                              price: data.price,
+                              stage: data.stage,
+                            ),
+                          ),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.goldPrimary,
                         foregroundColor: Colors.white,
