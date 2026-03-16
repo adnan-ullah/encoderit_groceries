@@ -68,61 +68,179 @@ class CategoryPage extends StatelessWidget {
             );
           }
 
-          return ListView.separated(
+          return ListView.builder(
             padding: ResponsiveHelper.getResponsivePadding(
               context,
               horizontal: 16,
-              vertical: 10,
+              vertical: 16,
             ),
             itemCount: categories.length,
-            separatorBuilder: (context, index) => Divider(
-              height: ResponsiveHelper.getResponsiveHeight(context, 1),
-              color: Colors.grey.shade300,
-            ),
             itemBuilder: (context, index) {
               final c = categories[index];
-
-              return InkWell(
-                onTap: () {
-                  debugPrint('Tapped category (CategoryPage): ${c.name}');
-                  Get.to(() => CategoryDetailsPage(
-                        categoryId: c.id,
-                        categoryName: c.name,
-                      ));
-                },
-                borderRadius: BorderRadius.circular(
-                  ResponsiveHelper.getResponsiveRadius(context, 12),
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: ResponsiveHelper.getResponsiveHeight(context, 12),
                 ),
-                child: Padding(
-                  padding: ResponsiveHelper.getResponsivePadding(
-                    context,
-                    vertical: 14,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          c.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(
-                                color: AppTheme.textPrimary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                      ),
-                      const Icon(
-                        Icons.chevron_right,
-                        color: AppTheme.textSecondary,
-                      ),
-                    ],
-                  ),
-                ),
+                child: _CategoryTile(category: c, index: index),
               );
             },
           );
         }),
+      ),
+    );
+  }
+}
+
+class _CategoryTile extends StatelessWidget {
+  const _CategoryTile({
+    required this.category,
+    required this.index,
+  });
+
+  final Category category;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final radius = ResponsiveHelper.getResponsiveRadius(context, 16);
+
+    // Rotate through a soft color palette to keep the list lively.
+    const colors = <Color>[
+      AppTheme.cyanBright,
+      AppTheme.mintBright,
+      AppTheme.skyLight,
+      AppTheme.seafoam,
+      AppTheme.goldPrimary,
+    ];
+    final base = colors[index % colors.length];
+
+    return InkWell(
+      onTap: () {
+        debugPrint('Tapped category (CategoryPage): ${category.name}');
+        Get.to(() => CategoryDetailsPage(
+              categoryId: category.id,
+              categoryName: category.name,
+            ));
+      },
+      borderRadius: BorderRadius.circular(radius),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              base.withOpacity(0.14),
+              base.withOpacity(0.04),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(radius),
+          border: Border.all(
+            color: base.withOpacity(0.35),
+            width: 0.6,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: ResponsiveHelper.getResponsivePadding(
+          context,
+          horizontal: 14,
+          vertical: 14,
+        ),
+        child: Row(
+          children: [
+            // Leading badge with first letter
+            Container(
+              width: ResponsiveHelper.getResponsiveWidth(context, 40),
+              height: ResponsiveHelper.getResponsiveHeight(context, 40),
+              decoration: BoxDecoration(
+                color: base.withOpacity(0.18),
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getResponsiveRadius(context, 12),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  category.name.isNotEmpty
+                      ? category.name[0].toUpperCase()
+                      : '?',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: base,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: ResponsiveHelper.getResponsiveWidth(context, 12),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    category.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: AppTheme.textPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(
+                    height: ResponsiveHelper.getResponsiveHeight(context, 4),
+                  ),
+                  Text(
+                    'Tap to explore items',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: ResponsiveHelper.getResponsiveWidth(context, 8),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveHelper.getResponsiveWidth(context, 10),
+                vertical: ResponsiveHelper.getResponsiveHeight(context, 6),
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(
+                  ResponsiveHelper.getResponsiveRadius(context, 20),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.chevron_right,
+                    size: 18,
+                    color: base,
+                  ),
+                  SizedBox(
+                    width: ResponsiveHelper.getResponsiveWidth(context, 2),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
