@@ -16,6 +16,7 @@ import '../pages/profile_page.dart';
 import '../pages/wishlist_page.dart';
 import '../controllers/wishlist_controller.dart';
 import '../services/app_services.dart';
+import '../pages/my_orders_page.dart';
 import '../pages/category_details_page.dart';
 import '../pages/offer_details_page.dart';
 import '../pages/search_page.dart';
@@ -34,6 +35,7 @@ class AppRoutes {
   static const favorites = '/favorites';
   static const search = '/search';
   static const signUp = '/sign-up';
+  static const myOrders = '/my-orders';
 }
 
 class AppPages {
@@ -56,6 +58,10 @@ class AppPages {
     GetPage(
       name: AppRoutes.signUp,
       page: () => const SignUpPage(),
+    ),
+    GetPage(
+      name: AppRoutes.myOrders,
+      page: () => const MyOrdersPage(),
     ),
     GetPage(
       name: AppRoutes.categoryDetails,

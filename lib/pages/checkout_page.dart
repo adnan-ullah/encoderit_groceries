@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../controllers/cart_controller.dart';
+import '../routes/app_pages.dart';
 import '../services/app_services.dart';
 import '../utils/app_theme.dart';
 
@@ -488,17 +489,12 @@ class _BottomBar extends StatelessWidget {
                 height: ResponsiveHelper.getResponsiveHeight(context, 52),
                 child: ElevatedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text(
-                          'Sorry, we are not delivering to your region yet. Please try a different address.',
-                        ),
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: Colors.red.shade600,
-                        duration: const Duration(seconds: 3),
-                      ),
+                    // In a real app you would submit the order here.
+                    // For now we simply navigate to My Orders.
+                    Navigator.of(context).popUntil(
+                      (route) => route.isFirst,
                     );
+                    Get.rootDelegate.toNamed(AppRoutes.myOrders);
                   },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.goldPrimary,
