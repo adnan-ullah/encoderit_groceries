@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../utils/app_theme.dart';
+import '../services/app_services.dart';
+import '../routes/app_pages.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -84,7 +86,11 @@ class ProfilePage extends StatelessWidget {
               label: 'Sign Out',
               background: AppTheme.goldPrimary,
               foreground: Colors.white,
-              onTap: () {},
+              onTap: () async {
+                // Clear auth and go back to login screen
+                await AppServices().authService.logout();
+                Get.rootDelegate.offNamed(AppRoutes.login);
+              },
             ),
           ],
         ),

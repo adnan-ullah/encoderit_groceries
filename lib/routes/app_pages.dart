@@ -23,6 +23,7 @@ import '../pages/search_page.dart';
 import '../pages/sign_up_page.dart';
 
 class AppRoutes {
+  // Root for NavShell / bottom navigation
   static const root = '/';
   static const login = '/login';
   static const home = '/home';

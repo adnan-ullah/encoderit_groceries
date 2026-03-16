@@ -63,11 +63,15 @@ class ResponsiveTextField extends StatelessWidget {
           hintText: hint,
           prefixIcon: prefixIcon,
           suffixIcon: suffixIcon,
+          filled: true,
+          fillColor: Colors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(responsiveRadius),
+            borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(responsiveRadius),
+            borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(responsiveRadius),

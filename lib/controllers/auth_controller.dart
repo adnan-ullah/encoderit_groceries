@@ -23,7 +23,8 @@ class AuthController extends GetxController {
 
     result.when(
       success: (_) {
-        Get.offAllNamed(AppRoutes.root);
+        // Go to shell root; ResponsiveBottomNavShell will show Home tab.
+        Get.rootDelegate.offNamed(AppRoutes.root);
         Get.snackbar('Success', 'Login successful');
       },
       failure: (error) {

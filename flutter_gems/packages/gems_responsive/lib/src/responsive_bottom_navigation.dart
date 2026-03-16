@@ -142,6 +142,13 @@ class _ResponsiveBottomNavShellState extends State<ResponsiveBottomNavShell> {
       fontSize: fontSize,
     );
 
+    // Only hide bottom nav on auth-like routes (login, sign-up).
+    final currentLocation =
+        _delegate.currentConfiguration?.location ?? widget.initialRoute;
+    final hideNavBar = currentLocation.startsWith('/login') ||
+        currentLocation.startsWith('/sign-up');
+    final showNavBar = !hideNavBar;
+
     final scaffold = Scaffold(
       appBar: widget.appBar,
       body: GetRouterOutlet(
@@ -151,10 +158,12 @@ class _ResponsiveBottomNavShellState extends State<ResponsiveBottomNavShell> {
       ),
       floatingActionButton: widget.floatingActionButton,
       floatingActionButtonLocation: widget.floatingActionButtonLocation,
-      bottomNavigationBar: Padding(
-        padding: resolvedPadding,
-        child: navBar,
-      ),
+      bottomNavigationBar: showNavBar
+          ? Padding(
+              padding: resolvedPadding,
+              child: navBar,
+            )
+          : null,
     );
 
     if (!widget.enableSafeArea) return scaffold;

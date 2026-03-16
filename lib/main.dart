@@ -46,11 +46,11 @@ class EncoderGroceriesApp extends StatelessWidget {
           routerDelegate: GetDelegate(),
           routeInformationProvider: PlatformRouteInformationProvider(
             initialRouteInformation: const RouteInformation(
-              location: AppRoutes.root,
+              location: AppRoutes.login,
             ),
           ),
           routeInformationParser: GetInformationParser(
-            initialRoute: AppRoutes.root,
+            initialRoute: AppRoutes.login,
           ),
           debugShowCheckedModeBanner: false,
         );
