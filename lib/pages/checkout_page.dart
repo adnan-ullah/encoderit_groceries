@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../controllers/cart_controller.dart';
+import '../controllers/local_orders_controller.dart';
 import '../routes/app_pages.dart';
 import '../services/app_services.dart';
 import '../utils/app_theme.dart';
@@ -489,11 +490,30 @@ class _BottomBar extends StatelessWidget {
                 height: ResponsiveHelper.getResponsiveHeight(context, 52),
                 child: ElevatedButton(
                   onPressed: () {
-                    // In a real app you would submit the order here.
-                    // For now we simply navigate to My Orders.
-                    Navigator.of(context).popUntil(
-                      (route) => route.isFirst,
+                    // Locally record an order, then navigate to My Orders.
+                    if (!Get.isRegistered<LocalOrdersController>()) {
+                      Get.put(LocalOrdersController(), permanent: true);
+                    }
+                    final orders = Get.find<LocalOrdersController>();
+                    final now = DateTime.now();
+                    final id = 'ORD-${now.millisecondsSinceEpoch}';
+                    final dateLabel =
+                        '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+
+                    orders.addOrder(
+                      LocalOrder(
+                        id: id,
+                        title: 'Encoder Groceries Order',
+                        transactionId: id,
+                        dateLabel: dateLabel,
+                        status: 'Out For Delivery',
+                        price: cart.total,
+                        deliveryName: 'Rider #${now.second}',
+                        deliveryPhone: '+1 555 01${now.second.toString().padLeft(2, '0')}',
+                        stage: OrderStage.outForDelivery,
+                      ),
                     );
+
                     Get.rootDelegate.toNamed(AppRoutes.myOrders);
                   },
               style: ElevatedButton.styleFrom(

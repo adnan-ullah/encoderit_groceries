@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
+import '../controllers/local_orders_controller.dart';
 import '../utils/app_theme.dart';
-import 'my_orders_page.dart' show OrderStage;
 
 class OrderTrackingPage extends StatelessWidget {
   const OrderTrackingPage({
@@ -12,6 +12,9 @@ class OrderTrackingPage extends StatelessWidget {
     required this.dateLabel,
     required this.price,
     required this.stage,
+    required this.status,
+    required this.deliveryName,
+    required this.deliveryPhone,
   });
 
   final String transactionId;
@@ -19,15 +22,18 @@ class OrderTrackingPage extends StatelessWidget {
   final String dateLabel;
   final double price;
   final OrderStage stage;
+  final String status;
+  final String deliveryName;
+  final String deliveryPhone;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final steps = <_TrackingStep>[
-      _TrackingStep('Order Processed', '22nd September 2023'),
-      _TrackingStep('Shipped Out', '23rd September 2023'),
-      _TrackingStep('Out for Delivery', '24th September 2023'),
-      _TrackingStep('Delivered', '25th September 2023'),
+    const steps = <_TrackingStep>[
+      _TrackingStep('Order Processed'),
+      _TrackingStep('Shipped Out'),
+      _TrackingStep('Out for Delivery'),
+      _TrackingStep('Delivered'),
     ];
 
     int activeIndex;
@@ -97,7 +103,7 @@ class OrderTrackingPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Abdul Rahman',
+                        deliveryName,
                         style: theme.textTheme.titleSmall?.copyWith(
                           color: AppTheme.textPrimary,
                           fontWeight: FontWeight.w700,
@@ -128,10 +134,12 @@ class OrderTrackingPage extends StatelessWidget {
                   final s = steps[index];
                   final isActive = index <= activeIndex;
                   final isLast = index == steps.length - 1;
+                  final dateForStep = index == activeIndex ? dateLabel : null;
                   return _TrackingStepTile(
                     step: s,
                     isActive: isActive,
                     showConnector: !isLast,
+                    dateLabel: dateForStep,
                   );
                 }),
               ),
@@ -153,6 +161,7 @@ class OrderTrackingPage extends StatelessWidget {
                 transactionId: transactionId,
                 dateLabel: dateLabel,
                 price: price,
+                status: status,
               ),
             ],
           ),
@@ -163,9 +172,8 @@ class OrderTrackingPage extends StatelessWidget {
 }
 
 class _TrackingStep {
-  const _TrackingStep(this.label, this.date);
+  const _TrackingStep(this.label);
   final String label;
-  final String date;
 }
 
 class _TrackingStepTile extends StatelessWidget {
@@ -173,11 +181,13 @@ class _TrackingStepTile extends StatelessWidget {
     required this.step,
     required this.isActive,
     required this.showConnector,
+    this.dateLabel,
   });
 
   final _TrackingStep step;
   final bool isActive;
   final bool showConnector;
+  final String? dateLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -221,12 +231,13 @@ class _TrackingStepTile extends StatelessWidget {
               SizedBox(
                 height: ResponsiveHelper.getResponsiveHeight(context, 4),
               ),
-              Text(
-                step.date,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: AppTheme.textSecondary,
+              if (dateLabel != null)
+                Text(
+                  dateLabel!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
-              ),
               SizedBox(
                 height: ResponsiveHelper.getResponsiveHeight(context, 12),
               ),
@@ -244,12 +255,14 @@ class _SummaryCard extends StatelessWidget {
     required this.transactionId,
     required this.dateLabel,
     required this.price,
+    required this.status,
   });
 
   final String title;
   final String transactionId;
   final String dateLabel;
   final double price;
+  final String status;
 
   @override
   Widget build(BuildContext context) {
@@ -318,7 +331,7 @@ class _SummaryCard extends StatelessWidget {
                   height: ResponsiveHelper.getResponsiveHeight(context, 2),
                 ),
                 Text(
-                  'Out For Delivery',
+                  status,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: AppTheme.textSecondary,
                   ),
