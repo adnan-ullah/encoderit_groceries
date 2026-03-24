@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
-import '../models/home_models.dart';
+import '../controllers/product_controller.dart';
+import '../models/product/product_model.dart';
 import '../routes/app_pages.dart';
+import '../services/app_services.dart';
 import '../utils/app_theme.dart';
 
 class OfferDetailsPage extends StatelessWidget {
@@ -15,47 +17,18 @@ class OfferDetailsPage extends StatelessWidget {
 
   final String offerTitle;
 
-  static const _dummyProducts = <OfferDetailProduct>[
-    OfferDetailProduct(
-      name: 'Real Brewed Tea\nZero Sugar',
-      price: 40.85,
-      oldPrice: 43.00,
-      isFavorite: true,
-    ),
-    OfferDetailProduct(
-      name: 'Contadina Tomato\nPuree',
-      price: 120.00,
-      isFavorite: true,
-    ),
-    OfferDetailProduct(
-      name: 'Mini Dill Pickles',
-      price: 108.00,
-      oldPrice: 120.00,
-      isFavorite: true,
-    ),
-    OfferDetailProduct(
-      name: 'Chicken Breast\nTenderloins',
-      price: 19.00,
-      oldPrice: 20.00,
-      isFavorite: true,
-    ),
-    OfferDetailProduct(
-      name: 'Mixed Dry Fruits',
-      price: 32.50,
-      oldPrice: 35.00,
-      isFavorite: true,
-    ),
-    OfferDetailProduct(
-      name: 'Fresh Apples',
-      price: 28.00,
-      isFavorite: true,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final products = _dummyProducts;
+    if (!Get.isRegistered<ProductController>()) {
+      Get.put(AppServices.getIt<ProductController>(), permanent: true);
+    }
+    final controller = Get.find<ProductController>();
+    if (!controller.isLoading.value && controller.items.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.loadItems();
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -84,19 +57,22 @@ class OfferDetailsPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          offerTitle,
+                          offerTitle == 'Offer' ? 'Flash Sale' : offerTitle,
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: AppTheme.textPrimary,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          '(${products.length} Products Found)',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
+                        Obx(() {
+                          final products = _flashSaleProducts(controller.items);
+                          return Text(
+                            '(${products.length} Products Found)',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                          );
+                        }),
                       ],
                     ),
                   ),
@@ -104,19 +80,40 @@ class OfferDetailsPage extends StatelessWidget {
               ),
               ResponsiveHelper.getResponsiveSpacing(context, 10),
               Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.72,
-                  ),
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final product = products[index];
-                    return _OfferProductCard(product: product);
-                  },
-                ),
+                child: Obx(() {
+                  final products = _flashSaleProducts(controller.items);
+
+                  if (controller.isLoading.value && products.isEmpty) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (products.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No flash sale products available right now.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: AppTheme.textSecondary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+                  }
+
+                  return GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 0.72,
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final product = products[index];
+                      return _OfferProductCard(product: product);
+                    },
+                  );
+                }),
               ),
             ],
           ),
@@ -124,17 +121,28 @@ class OfferDetailsPage extends StatelessWidget {
       ),
     );
   }
+
+  List<Product> _flashSaleProducts(List<Product> all) {
+    return all.where((p) => p.onSale == true).take(8).toList();
+  }
 }
 
 class _OfferProductCard extends StatelessWidget {
   const _OfferProductCard({required this.product});
 
-  final OfferDetailProduct product;
+  final Product product;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final radius = ResponsiveHelper.getResponsiveRadius(context, 16);
+    final unit = product.categories.isNotEmpty
+        ? product.categories.first.name
+        : 'Piece';
+    final price =
+        double.tryParse(product.price ?? product.salePrice ?? product.regularPrice ?? '0') ??
+            0;
+    final oldPrice = double.tryParse(product.regularPrice ?? '0') ?? 0;
 
     return Container(
       decoration: BoxDecoration(
@@ -157,27 +165,17 @@ class _OfferProductCard extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                    color: AppTheme.lightCard,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(radius),
-                      topRight: Radius.circular(radius),
-                    ),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 48,
-                      color: AppTheme.textTertiary,
-                    ),
+                  child: _OfferCardImage(
+                    imageUrl: product.images.isNotEmpty ? product.images.first.src : null,
+                    radius: radius,
                   ),
                 ),
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: Icon(
-                    product.isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: product.isFavorite ? AppTheme.goldSecondary : AppTheme.textSecondary,
+                  child: const Icon(
+                    Icons.favorite_border,
+                    color: AppTheme.textSecondary,
                     size: 20,
                   ),
                 ),
@@ -187,7 +185,8 @@ class _OfferProductCard extends StatelessWidget {
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () => showProductDetailsSheet(context),
+                      onTap: () =>
+                          showProductDetailsSheet(context, product: product),
                       borderRadius: BorderRadius.circular(20),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -244,21 +243,27 @@ class _OfferProductCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  Text(
+                    unit,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: AppTheme.textTertiary,
+                    ),
+                  ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        '\$${product.price.toStringAsFixed(2)}',
+                        '\$${price.toStringAsFixed(2)}',
                         style: theme.textTheme.titleSmall?.copyWith(
-                          color: AppTheme.goldPrimary,
+                          color: AppTheme.textPrimary,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      if (product.oldPrice != null) ...[
+                      if (oldPrice > price) ...[
                         const SizedBox(width: 6),
                         Text(
-                          '\$${product.oldPrice!.toStringAsFixed(2)}',
+                          '\$${oldPrice.toStringAsFixed(2)}',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: AppTheme.error,
                             decoration: TextDecoration.lineThrough,
@@ -272,6 +277,49 @@ class _OfferProductCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _OfferCardImage extends StatelessWidget {
+  const _OfferCardImage({
+    required this.imageUrl,
+    required this.radius,
+  });
+
+  final String? imageUrl;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    final borderRadius = BorderRadius.only(
+      topLeft: Radius.circular(radius),
+      topRight: Radius.circular(radius),
+    );
+
+    if (imageUrl == null || imageUrl!.isEmpty) {
+      return Container(
+        decoration: BoxDecoration(
+          color: AppTheme.lightCard,
+          borderRadius: borderRadius,
+        ),
+        child: const Center(
+          child: Icon(
+            Icons.image_outlined,
+            size: 48,
+            color: AppTheme.textTertiary,
+          ),
+        ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: FadeInImage.assetNetwork(
+        placeholder: 'assets/images/offer_banner_3.png',
+        image: imageUrl!,
+        fit: BoxFit.cover,
       ),
     );
   }

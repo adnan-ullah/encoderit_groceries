@@ -73,27 +73,32 @@ class _ProductDetailsSheetState extends State<ProductDetailsSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final product = widget.product;
+    final product = widget.product ??
+        const Product(
+          id: -1,
+          name: 'Overnight Diapers Size 6',
+          slug: 'overnight-diapers-size-6',
+        );
 
-    final name = product?.name ?? 'Overnight Diapers Size 6';
-    final unit = product != null && product.categories.isNotEmpty
+    final name = product.name;
+    final unit = product.categories.isNotEmpty
         ? product.categories.first.name
         : 'Packet';
     final priceValue = double.tryParse(
-          product?.price ??
-              product?.salePrice ??
-              product?.regularPrice ??
+          product.price ??
+              product.salePrice ??
+              product.regularPrice ??
               '33.25',
         ) ??
         33.25;
     final oldPriceValue = double.tryParse(
-          product?.regularPrice ?? '35.00',
+          product.regularPrice ?? '35.00',
         ) ??
         35.00;
-    final description = product?.shortDescription?.isNotEmpty == true
-        ? product!.shortDescription!
-        : product?.description?.isNotEmpty == true
-            ? product!.description!
+    final description = product.shortDescription?.isNotEmpty == true
+        ? product.shortDescription!
+        : product.description?.isNotEmpty == true
+            ? product.description!
             : 'No job is too big, no pup is too small! Luvs diapers with new Paw Patrol designs have your back and their butts. Luvs now has up to 12 hours of protection, day and night. Our highly trained paws are at your service to help stop diaper leaks quickly.';
 
     return Container(
@@ -337,51 +342,66 @@ class _QuantityButton extends StatelessWidget {
   }
 }
 
-class _FavoriteButton extends StatelessWidget {
+class _FavoriteButton extends StatefulWidget {
   const _FavoriteButton({this.product});
 
   final Product? product;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  State<_FavoriteButton> createState() => _FavoriteButtonState();
+}
+
+class _FavoriteButtonState extends State<_FavoriteButton> {
+  late final WishlistController _wishlist;
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
     if (!Get.isRegistered<WishlistController>()) {
       Get.put(AppServices.getIt<WishlistController>(), permanent: true);
     }
-    final wishlist = Get.find<WishlistController>();
+    _wishlist = Get.find<WishlistController>();
+    _isFavorite = widget.product != null &&
+        _wishlist.isInWishlist(widget.product!.id);
+  }
 
-    return Obx(() {
-      final isFavorite =
-          product != null && wishlist.isInWishlist(product!.id);
-      return OutlinedButton.icon(
-        onPressed: () {
-          if (product != null) {
-            wishlist.toggleProduct(product!);
-          }
-        },
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(
-            color: Colors.grey.shade300,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              ResponsiveHelper.getResponsiveRadius(context, 28),
-            ),
-          ),
-        ),
-        icon: Icon(
-          isFavorite ? Icons.favorite : Icons.favorite_border,
-          color: isFavorite ? AppTheme.goldSecondary : AppTheme.textPrimary,
-        ),
-        label: Text(
-          isFavorite ? 'Favorited' : 'Favorite',
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      );
+  Future<void> _toggleFavorite() async {
+    if (widget.product == null) return;
+    await _wishlist.toggleProduct(widget.product!);
+    if (!mounted) return;
+    setState(() {
+      _isFavorite = _wishlist.isInWishlist(widget.product!.id);
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return OutlinedButton.icon(
+      onPressed: _toggleFavorite,
+      style: OutlinedButton.styleFrom(
+        side: BorderSide(
+          color: Colors.grey.shade300,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(
+            ResponsiveHelper.getResponsiveRadius(context, 28),
+          ),
+        ),
+      ),
+      icon: Icon(
+        _isFavorite ? Icons.favorite : Icons.favorite_border,
+        color: _isFavorite ? AppTheme.goldSecondary : AppTheme.textPrimary,
+      ),
+      label: Text(
+        _isFavorite ? 'Favorited' : 'Favorite',
+        style: theme.textTheme.titleSmall?.copyWith(
+          color: AppTheme.textPrimary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
   }
 }
 
