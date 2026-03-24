@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 import 'package:get/get.dart';
@@ -317,104 +319,144 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildBanner(BuildContext context) {
     final theme = Theme.of(context);
+    final radius = ResponsiveHelper.getResponsiveRadius(context, 20);
+    final bannerHeight = ResponsiveHelper.getResponsiveHeight(context, 190);
 
-    return Container(
-      width: double.infinity,
-      padding: ResponsiveHelper.getResponsivePadding(
-        context,
-        horizontal: 16,
-        vertical: 16,
-      ),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/banner_2.png'),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.black.withOpacity(0.3),
-            BlendMode.darken,
-          ),
-        ),
-        gradient: LinearGradient(
-          colors: [AppTheme.mintBright, AppTheme.cyanBright],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(
-          ResponsiveHelper.getResponsiveRadius(context, 20),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    _banner.badgeLabel,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: AppTheme.tealDark,
-                      fontWeight: FontWeight.bold,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: SizedBox(
+        height: bannerHeight,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/banner_2.png'),
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-                ResponsiveHelper.getResponsiveSpacing(context, 12),
-                RichText(
-                  text: TextSpan(
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    children: [
-                      TextSpan(text: '${_banner.title} '),
-                      TextSpan(
-                        text: _banner.highlight,
-                        style: const TextStyle(fontWeight: FontWeight.w900),
-                      ),
+              ),
+            ),
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withOpacity(0.28),
+                      Colors.black.withOpacity(0.08),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withOpacity(0.12),
+                      Colors.white.withOpacity(0.03),
                     ],
                   ),
-                ),
-                ResponsiveHelper.getResponsiveSpacing(context, 8),
-                Text(
-                  _banner.description,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withOpacity(0.9),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.18),
+                    width: 1,
                   ),
+                  borderRadius: BorderRadius.circular(radius),
                 ),
-                ResponsiveHelper.getResponsiveSpacing(context, 16),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppTheme.tealDark,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    _banner.ctaLabel,
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: AppTheme.tealDark,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: ResponsiveHelper.getResponsivePadding(
+                context,
+                horizontal: 16,
+                vertical: 16,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.85),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            _banner.badgeLabel,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: AppTheme.tealDark,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        ResponsiveHelper.getResponsiveSpacing(context, 12),
+                        RichText(
+                          text: TextSpan(
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            children: [
+                              TextSpan(text: '${_banner.title} '),
+                              TextSpan(
+                                text: _banner.highlight,
+                                style:
+                                    const TextStyle(fontWeight: FontWeight.w900),
+                              ),
+                            ],
+                          ),
+                        ),
+                        ResponsiveHelper.getResponsiveSpacing(context, 8),
+                        Text(
+                          _banner.description,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                        ResponsiveHelper.getResponsiveSpacing(context, 16),
+                        ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppTheme.tealDark,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            _banner.ctaLabel,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: AppTheme.tealDark,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -422,107 +464,137 @@ class _HomePageState extends State<HomePage> {
   Widget _buildGroceryDeliveryBanner(BuildContext context) {
     final theme = Theme.of(context);
     final radius = ResponsiveHelper.getResponsiveRadius(context, 20);
+    final bannerHeight = ResponsiveHelper.getResponsiveHeight(context, 140);
 
-    return Container(
-      width: double.infinity,
-      height: ResponsiveHelper.getResponsiveHeight(context, 140),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/banner_3.png'),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.black.withOpacity(0.1),
-            BlendMode.darken,
-          ),
-        ),
-        borderRadius: BorderRadius.circular(radius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.12),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(radius),
-        child: Row(
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: SizedBox(
+        height: bannerHeight,
+        child: Stack(
           children: [
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade700,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        'LEADER',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+            Container(
+              width: double.infinity,
+              height: bannerHeight,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/banner_3.png'),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withOpacity(0.1),
+                    BlendMode.darken,
+                  ),
+                ),
+                borderRadius: BorderRadius.circular(radius),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.12),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
             ),
-            Expanded(
-              child: Container(
-                padding: ResponsiveHelper.getResponsivePadding(
-                  context,
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Grocery Delivery',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: AppTheme.tealDeep,
-                        fontWeight: FontWeight.w800,
-                      ),
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withOpacity(0.12),
+                        Colors.white.withOpacity(0.05),
+                      ],
                     ),
-                    ResponsiveHelper.getResponsiveSpacing(context, 12),
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => showProductDetailsSheet(context),
-                        borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(radius),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.16),
+                      width: 1,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Positioned(
+                        top: 12,
+                        left: 12,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10,
+                            horizontal: 10,
+                            vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppTheme.cyanPrimary,
-                            borderRadius: BorderRadius.circular(24),
+                            color: Colors.red.shade700,
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          alignment: Alignment.center,
                           child: Text(
-                            '20% OFF',
-                            style: theme.textTheme.labelLarge?.copyWith(
+                            'LEADER',
+                            style: theme.textTheme.labelSmall?.copyWith(
                               color: Colors.white,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+                Expanded(
+                  child: Container(
+                    padding: ResponsiveHelper.getResponsivePadding(
+                      context,
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Grocery Delivery',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: AppTheme.tealDeep,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        ResponsiveHelper.getResponsiveSpacing(context, 12),
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => showProductDetailsSheet(context),
+                            borderRadius: BorderRadius.circular(24),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.cyanPrimary,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                '20% OFF',
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -656,49 +728,82 @@ class _HomePageState extends State<HomePage> {
             arguments: title.replaceAll('\n', ' '),
           ),
           borderRadius: BorderRadius.circular(radius),
-          child: Container(
-            height: ResponsiveHelper.getResponsiveHeight(context, 120),
-            padding: ResponsiveHelper.getResponsivePadding(
-              context,
-              horizontal: 12,
-              vertical: 12,
-            ),
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(image),
-                fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.05),
-                  BlendMode.darken,
-                ),
-              ),
-              borderRadius: BorderRadius.circular(radius),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Stack(
               children: [
-                Text(
-                  badge,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: Colors.black.withOpacity(0.6),
-                    fontWeight: FontWeight.w600,
+                Container(
+                  height: ResponsiveHelper.getResponsiveHeight(context, 120),
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(image),
+                      fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(
+                        Colors.black.withOpacity(0.05),
+                        BlendMode.darken,
+                      ),
+                    ),
+                    borderRadius: BorderRadius.circular(radius),
                   ),
                 ),
-                const Spacer(),
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w700,
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.white.withOpacity(0.12),
+                            Colors.white.withOpacity(0.04),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(radius),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.black54,
+                Positioned.fill(
+                  child: Padding(
+                    padding: ResponsiveHelper.getResponsivePadding(
+                      context,
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          badge,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: Colors.black.withOpacity(0.6),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
