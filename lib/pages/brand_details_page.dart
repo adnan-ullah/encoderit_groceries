@@ -61,7 +61,9 @@ class _BrandDetailsPageState extends State<BrandDetailsPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () => Get.back(),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
       ),
       body: SafeArea(
