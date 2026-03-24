@@ -490,7 +490,7 @@ class _BottomBar extends StatelessWidget {
                 width: double.infinity,
                 height: ResponsiveHelper.getResponsiveHeight(context, 52),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Locally record an order, then navigate to My Orders.
                     if (!Get.isRegistered<LocalOrdersController>()) {
                       Get.put(LocalOrdersController(), permanent: true);
@@ -501,7 +501,7 @@ class _BottomBar extends StatelessWidget {
                     final dateLabel =
                         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
 
-                    orders.addOrder(
+                    await orders.addOrder(
                       LocalOrder(
                         id: id,
                         title: 'Encoder Groceries Order',
