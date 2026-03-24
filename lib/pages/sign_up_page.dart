@@ -16,15 +16,17 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -52,11 +54,11 @@ class _SignUpPageState extends State<SignUpPage> {
                   shape: BoxShape.circle,
                   color: Colors.white,
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.local_florist_rounded,
-                    size: 52,
-                    color: AppTheme.success,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Image.asset(
+                    'assets/images/app_icon.png',
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
@@ -88,12 +90,12 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                       ),
                       _PillTextField(
-                        controller: _nameController,
-                        hintText: 'Full name',
+                        controller: _usernameController,
+                        hintText: 'Username',
                         background: pillColor,
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) {
-                            return 'Please enter your name';
+                            return 'Please enter a username';
                           }
                           return null;
                         },
@@ -108,6 +110,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         controller: _emailController,
                         hintText: 'Email',
                         background: pillColor,
+                        keyboardType: TextInputType.emailAddress,
                         validator: (v) {
                           if (v == null || v.trim().isEmpty) {
                             return 'Please enter your email';
@@ -135,6 +138,27 @@ class _SignUpPageState extends State<SignUpPage> {
                           }
                           if (v.length < 6) {
                             return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(
+                        height: ResponsiveHelper.getResponsiveHeight(
+                          context,
+                          12,
+                        ),
+                      ),
+                      _PillTextField(
+                        controller: _confirmPasswordController,
+                        hintText: 'Confirm password',
+                        obscureText: true,
+                        background: pillColor,
+                        validator: (v) {
+                          if (v == null || v.isEmpty) {
+                            return 'Please confirm your password';
+                          }
+                          if (v != _passwordController.text) {
+                            return 'Passwords do not match';
                           }
                           return null;
                         },
@@ -228,9 +252,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
     final repo = AppServices.getIt<AuthRepository>();
     final result = await repo.signUp(
-      name: _nameController.text.trim(),
+      username: _usernameController.text.trim(),
       email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
+      password: _passwordController.text,
+      confirmPassword: _confirmPasswordController.text,
     );
 
     result.when(
@@ -264,6 +289,7 @@ class _PillTextField extends StatelessWidget {
   final String hintText;
   final Color background;
   final bool obscureText;
+  final TextInputType? keyboardType;
   final String? Function(String?)? validator;
 
   const _PillTextField({
@@ -271,6 +297,7 @@ class _PillTextField extends StatelessWidget {
     required this.hintText,
     required this.background,
     this.obscureText = false,
+    this.keyboardType,
     this.validator,
   });
 
@@ -280,6 +307,7 @@ class _PillTextField extends StatelessWidget {
       controller: controller,
       validator: validator,
       obscureText: obscureText,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,
