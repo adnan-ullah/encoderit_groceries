@@ -45,7 +45,13 @@ class _MyOrdersPageState extends State<MyOrdersPage>
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () => Get.rootDelegate.popRoute(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              Get.rootDelegate.offNamed('/');
+            }
+          },
         ),
         titleSpacing: 0,
         title: Text(

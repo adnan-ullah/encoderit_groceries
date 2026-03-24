@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/app_theme.dart';
 import '../services/app_services.dart';
 import '../routes/app_pages.dart';
+import 'my_orders_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -103,13 +104,13 @@ class _ProfilePageState extends State<ProfilePage> {
             ResponsiveHelper.getResponsiveSpacing(context, 16),
             _SectionCard(
               title: 'Account',
-              children: const [
-                _ProfileRow(
+              children: [
+                const _ProfileRow(
                   icon: Icons.location_on_outlined,
                   title: 'Shipping Address',
                   onTap: null,
                 ),
-                _ProfileRow(
+                const _ProfileRow(
                   icon: Icons.payment_outlined,
                   title: 'Payment Methods',
                   onTap: null,
@@ -117,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 _ProfileRow(
                   icon: Icons.receipt_long_outlined,
                   title: 'Order History',
-                  onTap: null,
+                  onTap: () => Get.to(() => const MyOrdersPage()),
                 ),
               ],
             ),

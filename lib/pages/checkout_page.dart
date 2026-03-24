@@ -7,6 +7,7 @@ import '../controllers/local_orders_controller.dart';
 import '../routes/app_pages.dart';
 import '../services/app_services.dart';
 import '../utils/app_theme.dart';
+import 'my_orders_page.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -514,7 +515,7 @@ class _BottomBar extends StatelessWidget {
                       ),
                     );
 
-                    Get.rootDelegate.toNamed(AppRoutes.myOrders);
+                    Get.to(() => const MyOrdersPage());
                   },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.goldPrimary,
