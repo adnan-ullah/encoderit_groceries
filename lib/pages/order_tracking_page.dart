@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
-import '../controllers/local_orders_controller.dart';
 import '../utils/app_theme.dart';
 
 class OrderTrackingPage extends StatelessWidget {
@@ -11,7 +10,7 @@ class OrderTrackingPage extends StatelessWidget {
     required this.title,
     required this.dateLabel,
     required this.price,
-    required this.stage,
+    required this.statusCode,
     required this.status,
     required this.deliveryName,
     required this.deliveryPhone,
@@ -21,7 +20,7 @@ class OrderTrackingPage extends StatelessWidget {
   final String title;
   final String dateLabel;
   final double price;
-  final OrderStage stage;
+  final String statusCode;
   final String status;
   final String deliveryName;
   final String deliveryPhone;
@@ -37,18 +36,19 @@ class OrderTrackingPage extends StatelessWidget {
     ];
 
     int activeIndex;
-    switch (stage) {
-      case OrderStage.processed:
+    switch (statusCode.toLowerCase().trim()) {
+      case 'pending':
         activeIndex = 0;
         break;
-      case OrderStage.shipped:
+      case 'on-hold':
+      case 'processing':
         activeIndex = 1;
         break;
-      case OrderStage.outForDelivery:
-        activeIndex = 2;
-        break;
-      case OrderStage.delivered:
+      case 'completed':
         activeIndex = 3;
+        break;
+      default:
+        activeIndex = 2;
         break;
     }
 

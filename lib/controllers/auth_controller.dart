@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:gems_core/gems_core.dart';
 
 import 'cart_controller.dart';
-import 'local_orders_controller.dart';
+import 'order_controller.dart';
 import '../repositories/auth_repository.dart';
 import '../routes/app_pages.dart';
 
@@ -35,8 +35,8 @@ class AuthController extends GetxController {
       if (Get.isRegistered<CartController>()) {
         await Get.find<CartController>().loadItems();
       }
-      if (Get.isRegistered<LocalOrdersController>()) {
-        await Get.find<LocalOrdersController>().loadOrders();
+      if (Get.isRegistered<OrderController>()) {
+        await Get.find<OrderController>().loadItems();
       }
 
       // Go to shell root; ResponsiveBottomNavShell will show Home tab.

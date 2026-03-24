@@ -14,6 +14,9 @@ class ApiEndpoints {
   /// Auth / register
   static const String register = 'wp-json/auth/v1/register';
 
+  /// WooCommerce orders base path.
+  static const String ordersBase = 'wp-json/wc/v3/orders';
+
   /// WooCommerce products base path (without query).
   /// With apiBaseUrl = .../ this becomes: wp-json/wc/v3/products
   static const String productsBase = 'wp-json/wc/v3/products';

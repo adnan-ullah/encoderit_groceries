@@ -12,6 +12,7 @@ import '../pages/home_page.dart';
 import '../pages/category_page.dart';
 import '../pages/cart_page.dart';
 import '../controllers/cart_controller.dart';
+import '../controllers/order_controller.dart';
 import '../pages/profile_page.dart';
 import '../pages/wishlist_page.dart';
 import '../controllers/wishlist_controller.dart';
@@ -63,6 +64,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.myOrders,
       page: () => const MyOrdersPage(),
+      binding: BindingsBuilder(() {
+        if (!Get.isRegistered<OrderController>()) {
+          Get.put(AppServices.getIt<OrderController>(), permanent: true);
+        }
+      }),
     ),
     GetPage(
       name: AppRoutes.categoryDetails,

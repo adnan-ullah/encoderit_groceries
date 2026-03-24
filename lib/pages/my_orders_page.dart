@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
-import '../controllers/local_orders_controller.dart';
+import '../controllers/order_controller.dart';
+import '../models/order/order_model.dart';
+import '../services/app_services.dart';
 import '../utils/app_theme.dart';
 import 'order_tracking_page.dart';
 
@@ -16,16 +18,16 @@ class MyOrdersPage extends StatefulWidget {
 class _MyOrdersPageState extends State<MyOrdersPage>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  late final LocalOrdersController _orders;
+  late final OrderController _orders;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    if (!Get.isRegistered<LocalOrdersController>()) {
-      Get.put(LocalOrdersController(), permanent: true);
+    if (!Get.isRegistered<OrderController>()) {
+      Get.put(AppServices.getIt<OrderController>(), permanent: true);
     }
-    _orders = Get.find<LocalOrdersController>();
+    _orders = Get.find<OrderController>();
   }
 
   @override
@@ -127,7 +129,7 @@ class _OrdersList extends StatelessWidget {
     required this.showFeedbackButton,
   });
 
-  final List<LocalOrder> orders;
+  final List<OrderModel> orders;
   final bool showTrackButton;
   final bool showFeedbackButton;
 
@@ -175,7 +177,7 @@ class _OrderCard extends StatelessWidget {
     required this.showFeedbackButton,
   });
 
-  final LocalOrder data;
+  final OrderModel data;
   final bool showTrackButton;
   final bool showFeedbackButton;
 
@@ -183,6 +185,26 @@ class _OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final radius = ResponsiveHelper.getResponsiveRadius(context, 18);
+    final lineItem = data.lineItems.isNotEmpty ? data.lineItems.first : null;
+    final title = lineItem?.name ?? 'Order #${data.id}';
+    final orderNumber = (data.number != null && data.number!.isNotEmpty)
+        ? data.number!
+        : data.id.toString();
+    final transactionId = (data.transactionId != null && data.transactionId!.isNotEmpty)
+        ? data.transactionId!
+        : data.id.toString();
+    final dateLabel = data.dateCreated ?? '';
+    final total = double.tryParse(data.total) ?? 0.0;
+    final imageUrl = lineItem?.image?.src;
+    final customerName = [
+      data.billing?.firstName?.trim() ?? '',
+      data.billing?.lastName?.trim() ?? '',
+    ].where((e) => e.isNotEmpty).join(' ');
+    final paymentMethod = data.paymentMethodTitle?.trim().isNotEmpty == true
+        ? data.paymentMethodTitle!
+        : (data.paymentMethod?.trim().isNotEmpty == true
+            ? data.paymentMethod!
+            : 'N/A');
 
     return Container(
       decoration: BoxDecoration(
@@ -212,10 +234,21 @@ class _OrderCard extends StatelessWidget {
                 ResponsiveHelper.getResponsiveRadius(context, 16),
               ),
             ),
-            child: const Icon(
-              Icons.image_outlined,
-              color: AppTheme.textTertiary,
-            ),
+            child: imageUrl == null || imageUrl.isEmpty
+                ? const Icon(
+                    Icons.image_outlined,
+                    color: AppTheme.textTertiary,
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      ResponsiveHelper.getResponsiveRadius(context, 16),
+                    ),
+                    child: FadeInImage.assetNetwork(
+                      placeholder: 'assets/images/offer_banner_3.png',
+                      image: imageUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
           ),
           SizedBox(
             width: ResponsiveHelper.getResponsiveWidth(context, 10),
@@ -226,7 +259,7 @@ class _OrderCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  data.title,
+                  title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -238,7 +271,19 @@ class _OrderCard extends StatelessWidget {
                   height: ResponsiveHelper.getResponsiveHeight(context, 4),
                 ),
                 Text(
-                  'Transaction ID: ${data.transactionId}',
+                  'Order #$orderNumber',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppTheme.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(
+                  height: ResponsiveHelper.getResponsiveHeight(context, 2),
+                ),
+                Text(
+                  'Transaction ID: $transactionId',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -249,7 +294,30 @@ class _OrderCard extends StatelessWidget {
                   height: ResponsiveHelper.getResponsiveHeight(context, 2),
                 ),
                 Text(
-                  'Scheduled For: ${data.dateLabel}',
+                  'Scheduled For: $dateLabel',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+                SizedBox(
+                  height: ResponsiveHelper.getResponsiveHeight(context, 2),
+                ),
+                if (customerName.isNotEmpty)
+                  Text(
+                    'Customer: $customerName',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                SizedBox(
+                  height: ResponsiveHelper.getResponsiveHeight(context, 2),
+                ),
+                Text(
+                  'Payment: $paymentMethod',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: AppTheme.textSecondary,
                   ),
@@ -278,7 +346,7 @@ class _OrderCard extends StatelessWidget {
                   height: ResponsiveHelper.getResponsiveHeight(context, 6),
                 ),
                 Text(
-                  '\$${data.price.toStringAsFixed(2)}',
+                  '\$${total.toStringAsFixed(2)}',
                   style: theme.textTheme.titleSmall?.copyWith(
                     color: AppTheme.textPrimary,
                     fontWeight: FontWeight.w800,
@@ -302,16 +370,14 @@ class _OrderCard extends StatelessWidget {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => OrderTrackingPage(
-                                transactionId: data.transactionId,
-                                title: data.title,
-                                dateLabel: data.dateLabel,
-                                price: data.price,
-                                stage: data.stage,
+                                transactionId: transactionId,
+                                title: title,
+                                dateLabel: dateLabel,
+                                price: total,
+                                statusCode: data.status,
                                 status: data.status,
-                                deliveryName:
-                                    data.deliveryName ?? 'Delivery Partner',
-                                deliveryPhone:
-                                    data.deliveryPhone ?? '+00 000 0000',
+                                deliveryName: 'Delivery Partner',
+                                deliveryPhone: '+00 000 0000',
                               ),
                             ),
                           );

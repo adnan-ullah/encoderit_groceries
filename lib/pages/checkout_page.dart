@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 
 import '../controllers/cart_controller.dart';
-import '../controllers/local_orders_controller.dart';
+import '../controllers/order_controller.dart';
 import '../routes/app_pages.dart';
 import '../services/app_services.dart';
 import '../utils/app_theme.dart';
@@ -20,6 +20,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _addressTitle = 'Home';
   String _addressDetails =
       '123 Encoder Street, Groceries Lane,\nCity, Country 12345';
+  bool _isPlacingOrder = false;
 
   Future<void> _onChangeAddressTap() async {
     final controller = TextEditingController(text: _addressDetails);
@@ -132,6 +133,32 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Get.find<CartController>();
   }
 
+  Future<void> _placeOrder() async {
+    if (_isPlacingOrder) return;
+    if (_cart.items.isEmpty) return;
+
+    setState(() => _isPlacingOrder = true);
+    try {
+      if (!Get.isRegistered<OrderController>()) {
+        Get.put(AppServices.getIt<OrderController>(), permanent: true);
+      }
+      final orders = Get.find<OrderController>();
+      await orders.createLocalOrderFromCart(
+        cartItems: _cart.items.toList(),
+        total: _cart.total,
+        paymentMethodTitle: 'Cash on delivery',
+      );
+      await _cart.clearAll();
+      if (mounted) {
+        Get.to(() => const MyOrdersPage());
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isPlacingOrder = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -192,7 +219,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
               thickness: 1,
               color: AppTheme.textSecondary,
             ),
-            _BottomBar(cart: _cart),
+            _BottomBar(
+              cart: _cart,
+              isPlacingOrder: _isPlacingOrder,
+              onPlaceOrder: _placeOrder,
+            ),
           ],
         ),
       ),
@@ -450,9 +481,15 @@ class _OrderSummaryCard extends StatelessWidget {
 }
 
 class _BottomBar extends StatelessWidget {
-  const _BottomBar({required this.cart});
+  const _BottomBar({
+    required this.cart,
+    required this.isPlacingOrder,
+    required this.onPlaceOrder,
+  });
 
   final CartController cart;
+  final bool isPlacingOrder;
+  final Future<void> Function() onPlaceOrder;
 
   @override
   Widget build(BuildContext context) {
@@ -490,33 +527,9 @@ class _BottomBar extends StatelessWidget {
                 width: double.infinity,
                 height: ResponsiveHelper.getResponsiveHeight(context, 52),
                 child: ElevatedButton(
-                  onPressed: () async {
-                    // Locally record an order, then navigate to My Orders.
-                    if (!Get.isRegistered<LocalOrdersController>()) {
-                      Get.put(LocalOrdersController(), permanent: true);
-                    }
-                    final orders = Get.find<LocalOrdersController>();
-                    final now = DateTime.now();
-                    final id = 'ORD-${now.millisecondsSinceEpoch}';
-                    final dateLabel =
-                        '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
-
-                    await orders.addOrder(
-                      LocalOrder(
-                        id: id,
-                        title: 'Encoder Groceries Order',
-                        transactionId: id,
-                        dateLabel: dateLabel,
-                        status: 'Out For Delivery',
-                        price: cart.total,
-                        deliveryName: 'Rider #${now.second}',
-                        deliveryPhone: '+1 555 01${now.second.toString().padLeft(2, '0')}',
-                        stage: OrderStage.outForDelivery,
-                      ),
-                    );
-
-                    Get.to(() => const MyOrdersPage());
-                  },
+                  onPressed: (isPlacingOrder || cart.items.isEmpty)
+                      ? null
+                      : () => onPlaceOrder(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.goldPrimary,
                 foregroundColor: Colors.white,
@@ -527,13 +540,37 @@ class _BottomBar extends StatelessWidget {
                 ),
                 elevation: 0,
               ),
-              child: Text(
-                'Place Order',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              child: isPlacingOrder
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          width: ResponsiveHelper.getResponsiveSize(context, 18),
+                          height: ResponsiveHelper.getResponsiveSize(context, 18),
+                          child: const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Placing Order...',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      'Place Order',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
             ),
           ),
         ],
