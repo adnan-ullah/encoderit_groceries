@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../controllers/brand_controller.dart';
 import '../controllers/category_controller.dart';
@@ -42,9 +43,12 @@ class _HomePageState extends State<HomePage> {
     Icons.bakery_dining_outlined,
   ];
 
+  String _displayName = 'Guest User';
+
   @override
   void initState() {
     super.initState();
+    _loadSessionUser();
     // Ensure categories are loaded for the home "Browse by Category" strip.
     final categoryController = Get.find<CategoryController>();
     if (!categoryController.isLoading.value &&
@@ -55,35 +59,53 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _loadSessionUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final username = prefs.getString('auth_username')?.trim();
+    final email = prefs.getString('auth_user_email')?.trim();
+
+    if (!mounted) return;
+
+    setState(() {
+      if (username != null && username.isNotEmpty) {
+        _displayName = username;
+      } else if (email != null && email.isNotEmpty) {
+        _displayName = email.split('@').first;
+      } else {
+        _displayName = 'Guest User';
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final productController = Get.find<ProductController>();
     return Scaffold(
-      appBar: _buildAppBar(context),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
-              child: Padding(
-                padding: ResponsiveHelper.getResponsivePadding(
-                  context,
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildBanner(context),
-                    ResponsiveHelper.getResponsiveSpacing(context, 24),
-                    _buildSectionHeader(context, title: 'Browse by Category'),
-                    ResponsiveHelper.getResponsiveSpacing(context, 12),
-                    _buildCategoryStrip(context),
-                    ResponsiveHelper.getResponsiveSpacing(context, 24),
-                    _buildPromoRow(context),
-                    ResponsiveHelper.getResponsiveSpacing(context, 24),
-                    _buildSectionHeader(context, title: 'Most Popular'),
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHomeTopSection(context),
+                  ResponsiveHelper.getResponsiveSpacing(context, 24),
+                  Padding(
+                    padding: ResponsiveHelper.getResponsivePadding(
+                      context,
+                      horizontal: 16,
+                      vertical: 0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildBanner(context),
+                        ResponsiveHelper.getResponsiveSpacing(context, 24),
+                        _buildSectionHeader(context, title: 'Most Popular'),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             SliverPadding(
@@ -106,7 +128,7 @@ class _HomePageState extends State<HomePage> {
                   horizontal: 16,
                   vertical: 20,
                 ),
-                child: _buildGroceryDeliveryBanner(context),
+                child: _buildPromoRow(context),
               ),
             ),
             SliverToBoxAdapter(
@@ -127,6 +149,8 @@ class _HomePageState extends State<HomePage> {
                         productController.items.toList(),
                       ),
                     ),
+                    ResponsiveHelper.getResponsiveSpacing(context, 24),
+                    _buildGroceryDeliveryBanner(context),
                     ResponsiveHelper.getResponsiveSpacing(context, 24),
                     _buildFlashSaleHeader(context),
                     ResponsiveHelper.getResponsiveSpacing(context, 12),
@@ -155,23 +179,139 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
-    return AppBar(
-      elevation: 0,
-      titleSpacing: ResponsiveHelper.getResponsiveWidth(context, 16),
-      title: Text(
-        'Encoder Groceries',
-        style: Theme.of(
-          context,
-        ).textTheme.titleLarge?.copyWith(color: AppTheme.goldPrimary),
+  Widget _buildHomeTopSection(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      height: ResponsiveHelper.getResponsiveHeight(context, 230),
+      child: Stack(
+        children: [
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: Container(
+            width: double.infinity,
+            height: ResponsiveHelper.getResponsiveHeight(context, 165),
+            padding: ResponsiveHelper.getResponsivePadding(
+              context,
+              horizontal: 14,
+              vertical: 14,
+            ),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00172E),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(
+                  ResponsiveHelper.getResponsiveRadius(context, 20),
+                ),
+                bottomRight: Radius.circular(
+                  ResponsiveHelper.getResponsiveRadius(context, 20),)
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: ResponsiveHelper.getResponsiveRadius(context, 20),
+                      backgroundColor: AppTheme.lightCard,
+                      child: const Icon(
+                        Icons.person,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                    SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 10)),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Welcome',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: Colors.white.withOpacity(0.8),
+                            ),
+                          ),
+                          Text(
+                            _displayName,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => Get.rootDelegate.toNamed(AppRoutes.search),
+                        borderRadius: BorderRadius.circular(22),
+                        child: Container(
+                          width: ResponsiveHelper.getResponsiveWidth(context, 42),
+                          height: ResponsiveHelper.getResponsiveHeight(context, 42),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.notifications_none_outlined,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                ResponsiveHelper.getResponsiveSpacing(context, 14),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => Get.rootDelegate.toNamed(AppRoutes.search),
+                    borderRadius: BorderRadius.circular(28),
+                    child: Container(
+                      width: double.infinity,
+                      padding: ResponsiveHelper.getResponsivePadding(
+                        context,
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(
+                          ResponsiveHelper.getResponsiveRadius(context, 28),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.search,
+                            color: AppTheme.textSecondary,
+                          ),
+                          SizedBox(
+                              width: ResponsiveHelper.getResponsiveWidth(context, 8)),
+                          Text(
+                            'Search here...',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: -20,
+            child: _buildCategoryStrip(context),
+          ),
+        ],
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () => Get.rootDelegate.toNamed(AppRoutes.search),
-        ),
-        SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 8)),
-      ],
     );
   }
 
@@ -415,22 +555,31 @@ class _HomePageState extends State<HomePage> {
       }
 
       return SizedBox(
-        height: ResponsiveHelper.getResponsiveHeight(context, 110),
+        height: ResponsiveHelper.getResponsiveHeight(context, 108),
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
-          itemCount: categories.length,
+          itemCount: categories.length + 1,
           separatorBuilder: (_, __) =>
-              SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 12)),
+              SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 10)),
           itemBuilder: (context, index) {
-            final category = categories[index];
-            final icon = _categoryIcons[index % _categoryIcons.length];
+            final isAll = index == 0;
+            final category = isAll ? null : categories[index - 1];
+            final icon = isAll
+                ? Icons.menu_rounded
+                : _categoryIcons[(index - 1) % _categoryIcons.length];
+            final label = isAll ? 'All' : category!.name;
+
             return InkWell(
               onTap: () {
-                debugPrint('Tapped category (HomePage): ${category.name}');
-                Get.to(() => CategoryDetailsPage(
-                  categoryId: category.id,
-                  categoryName: category.name,
-                ));
+                if (isAll) {
+                  Get.rootDelegate.toNamed(AppRoutes.products);
+                } else {
+                  debugPrint('Tapped category (HomePage): ${category!.name}');
+                  Get.to(() => CategoryDetailsPage(
+                        categoryId: category?.id,
+                        categoryName: category!.name,
+                      ));
+                }
               },
               borderRadius: BorderRadius.circular(
                 ResponsiveHelper.getResponsiveRadius(context, 24),
@@ -440,51 +589,44 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    width: ResponsiveHelper.getResponsiveWidth(context, 50),
-                    height: ResponsiveHelper.getResponsiveHeight(context, 50),
+                    width: ResponsiveHelper.getResponsiveWidth(context, 56),
+                    height: ResponsiveHelper.getResponsiveHeight(context, 56),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [
-                          AppTheme.cyanBright.withOpacity(0.18),
-                          AppTheme.mintBright.withOpacity(0.10),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: isAll ? AppTheme.goldPrimary : Colors.white,
+                      border: isAll
+                          ? null
+                          : Border.all(
+                              color: AppTheme.textSecondary.withOpacity(0.14),
+                            ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.06),
-                          blurRadius: 8,
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
                       ],
                     ),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        icon,
-                        color: AppTheme.goldPrimary,
-                        size: ResponsiveHelper.getResponsiveSize(context, 26),
-                      ),
+                    child: Icon(
+                      icon,
+                      color: isAll ? Colors.white : AppTheme.goldPrimary,
+                      size: ResponsiveHelper.getResponsiveSize(context, 24),
                     ),
                   ),
                   SizedBox(
                     height: ResponsiveHelper.getResponsiveHeight(context, 6),
                   ),
                   SizedBox(
-                    width: ResponsiveHelper.getResponsiveWidth(context, 80),
+                    width: ResponsiveHelper.getResponsiveWidth(context, 66),
                     child: Text(
-                      category.name,
-                      maxLines: 2,
+                      label,
+                      maxLines: 1,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppTheme.textPrimary,
-                            fontWeight: FontWeight.w500,
+                            color:
+                                isAll ? AppTheme.goldPrimary : AppTheme.textPrimary,
+                            fontWeight: isAll ? FontWeight.w700 : FontWeight.w500,
                           ),
                     ),
                   ),
