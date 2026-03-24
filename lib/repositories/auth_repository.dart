@@ -14,6 +14,7 @@ class AuthRepository {
 
   static const _sessionUserIdKey = 'auth_user_id';
   static const _sessionUserEmailKey = 'auth_user_email';
+  static const _sessionUsernameKey = 'auth_username';
 
   Future<Result<void>> signUp({
     required String username,
@@ -60,6 +61,9 @@ class AuthRepository {
       }
       if (email.isNotEmpty) {
         await prefs.setString(_sessionUserEmailKey, email);
+      }
+      if (username.isNotEmpty) {
+        await prefs.setString(_sessionUsernameKey, username);
       }
 
       return  Result.success(null);
@@ -114,6 +118,9 @@ class AuthRepository {
       }
       if (userEmail != null && userEmail.isNotEmpty) {
         await prefs.setString(_sessionUserEmailKey, userEmail);
+      }
+      if (username.isNotEmpty) {
+        await prefs.setString(_sessionUsernameKey, username);
       }
 
       // WooCommerce keys: keep existing dummy / config for now (skip API fields).

@@ -1,13 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/app_theme.dart';
 import '../services/app_services.dart';
 import '../routes/app_pages.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  static const _sessionUserIdKey = 'auth_user_id';
+  static const _sessionUserEmailKey = 'auth_user_email';
+  static const _sessionUsernameKey = 'auth_username';
+
+  String _displayName = 'Guest User';
+  String _displayEmail = 'guest@example.com';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedUsername = prefs.getString(_sessionUsernameKey)?.trim();
+    final savedEmail = prefs.getString(_sessionUserEmailKey)?.trim();
+    final savedUserId = prefs.getString(_sessionUserIdKey)?.trim();
+
+    String name = _displayName;
+    String email = _displayEmail;
+
+    if (savedEmail != null && savedEmail.isNotEmpty) {
+      email = savedEmail;
+      // If username is not available, derive a readable name from email.
+      final emailPrefix = savedEmail.split('@').first;
+      if (savedUsername == null || savedUsername.isEmpty) {
+        name = emailPrefix.isEmpty ? 'User' : emailPrefix;
+      }
+    }
+
+    if (savedUsername != null && savedUsername.isNotEmpty) {
+      name = savedUsername;
+    } else if (savedUserId != null && savedUserId.isNotEmpty && name == _displayName) {
+      name = 'User #$savedUserId';
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _displayName = name;
+      _displayEmail = email;
+    });
+  }
 
   static const _items = <({IconData icon, String title})>[
     (icon: Icons.language, title: 'Change Language'),
@@ -46,7 +96,10 @@ class ProfilePage extends StatelessWidget {
             vertical: 16,
           ),
           children: [
-            _ProfileHeaderCard(),
+            _ProfileHeaderCard(
+              name: _displayName,
+              email: _displayEmail,
+            ),
             ResponsiveHelper.getResponsiveSpacing(context, 16),
             _SectionCard(
               title: 'Account',
@@ -184,6 +237,14 @@ class _ProfileRow extends StatelessWidget {
 }
 
 class _ProfileHeaderCard extends StatelessWidget {
+  final String name;
+  final String email;
+
+  const _ProfileHeaderCard({
+    required this.name,
+    required this.email,
+  });
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -227,7 +288,7 @@ class _ProfileHeaderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Encoder IT',
+                  name,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: AppTheme.textPrimary,
                     fontWeight: FontWeight.w700,
@@ -235,7 +296,7 @@ class _ProfileHeaderCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'admin@encoderit.com',
+                  email,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: AppTheme.textSecondary,
                   ),
