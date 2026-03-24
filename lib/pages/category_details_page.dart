@@ -130,14 +130,6 @@ class _CategoryDetailsPageState extends State<CategoryDetailsPage> {
             Navigator.of(context).pop();
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () =>
-                Get.rootDelegate.toNamed(AppRoutes.search),
-          ),
-          SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 8)),
-        ],
       ),
       body: SafeArea(
         child: Padding(

@@ -32,14 +32,6 @@ class CategoryPage extends StatelessWidget {
                 color: AppTheme.goldPrimary,
               ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () =>
-                Get.rootDelegate.toNamed(AppRoutes.search),
-          ),
-          SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 8)),
-        ],
       ),
       body: SafeArea(
         child: Obx(() {

@@ -65,14 +65,6 @@ class OfferDetailsPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => Get.back(),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () =>
-                Get.rootDelegate.toNamed(AppRoutes.search),
-          ),
-          SizedBox(width: ResponsiveHelper.getResponsiveWidth(context, 8)),
-        ],
       ),
       body: SafeArea(
         child: Padding(
