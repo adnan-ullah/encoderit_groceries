@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../repositories/auth_repository.dart';
 import '../utils/app_theme.dart';
 import '../services/app_services.dart';
 import '../routes/app_pages.dart';
@@ -141,8 +142,9 @@ class _ProfilePageState extends State<ProfilePage> {
               background: AppTheme.goldPrimary,
               foreground: Colors.white,
               onTap: () async {
-                // Clear auth and go back to login screen
+                // Clear both gems auth token and local session keys.
                 await AppServices().authService.logout();
+                await AppServices.getIt<AuthRepository>().clearSession();
                 Get.rootDelegate.offNamed(AppRoutes.login);
               },
             ),

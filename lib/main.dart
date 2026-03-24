@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gems_responsive/gems_responsive.dart';
 import 'package:gems_core/gems_core.dart';
 
+import 'repositories/auth_repository.dart';
 import 'services/app_services.dart';
 import 'utils/app_theme.dart';
 import 'routes/app_pages.dart';
@@ -24,11 +25,20 @@ void main() async {
     ),
   );
 
-  runApp(const EncoderGroceriesApp());
+  final authRepository = AppServices.getIt<AuthRepository>();
+  final hasSession = await authRepository.hasActiveSession();
+  final initialRoute = hasSession ? AppRoutes.root : AppRoutes.login;
+
+  runApp(EncoderGroceriesApp(initialRoute: initialRoute));
 }
 
 class EncoderGroceriesApp extends StatelessWidget {
-  const EncoderGroceriesApp({super.key});
+  const EncoderGroceriesApp({
+    super.key,
+    required this.initialRoute,
+  });
+
+  final String initialRoute;
 
   @override
   Widget build(BuildContext context) {
@@ -45,12 +55,12 @@ class EncoderGroceriesApp extends StatelessWidget {
           getPages: AppPages.routes,
           routerDelegate: GetDelegate(),
           routeInformationProvider: PlatformRouteInformationProvider(
-            initialRouteInformation: const RouteInformation(
-              location: AppRoutes.login,
+            initialRouteInformation: RouteInformation(
+              location: initialRoute,
             ),
           ),
           routeInformationParser: GetInformationParser(
-            initialRoute: AppRoutes.login,
+            initialRoute: initialRoute,
           ),
           debugShowCheckedModeBanner: false,
         );

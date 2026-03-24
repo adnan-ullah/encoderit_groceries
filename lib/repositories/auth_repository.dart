@@ -16,6 +16,22 @@ class AuthRepository {
   static const _sessionUserEmailKey = 'auth_user_email';
   static const _sessionUsernameKey = 'auth_username';
 
+  Future<bool> hasActiveSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString(_sessionUserEmailKey);
+    final userId = prefs.getString(_sessionUserIdKey);
+    return (email != null && email.trim().isNotEmpty) ||
+        (userId != null && userId.trim().isNotEmpty);
+  }
+
+  Future<void> clearSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_sessionUserIdKey);
+    await prefs.remove(_sessionUserEmailKey);
+    await prefs.remove(_sessionUsernameKey);
+    apiService.setAuthToken(null);
+  }
+
   Future<Result<void>> signUp({
     required String username,
     required String email,
