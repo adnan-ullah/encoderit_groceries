@@ -81,9 +81,13 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset('assets/images/app_icon_2.png', fit: BoxFit.cover,),
+        ),
         titleSpacing: ResponsiveHelper.getResponsiveWidth(context, 16),
         title: Text(
-          'Encoder Groceries',
+          'Fresh Groceries',
           style: theme.textTheme.titleLarge?.copyWith(
             color: AppTheme.goldPrimary,
             fontWeight: FontWeight.w800,
