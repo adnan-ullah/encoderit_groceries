@@ -24,10 +24,14 @@ class CategoryPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset('assets/images/app_icon_2.png', fit: BoxFit.cover,),
+        ),
         elevation: 0,
         titleSpacing: ResponsiveHelper.getResponsiveWidth(context, 16),
         title: Text(
-          'Encoder Groceries',
+          'Fresh Groceries',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 color: AppTheme.goldPrimary,
               ),
