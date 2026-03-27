@@ -35,9 +35,44 @@ class _LoginPageState extends State<LoginPage> {
     final bgColor = theme.scaffoldBackgroundColor;
     final primary = AppTheme.goldPrimary;
     const brandBlue = Color(0xFF00A6D6);
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: bgColor,
+      bottomNavigationBar: isKeyboardOpen
+          ? null
+          : SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Powered by ',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Image.asset(
+                      'assets/images/encoderit_logo.png',
+                      width: 18,
+                      height: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'EncoderIT Limited',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: brandBlue,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -64,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                   final maxWidth =
                       ResponsiveHelper.getResponsiveWidth(context, 520);
 
-                  return Padding(
+                  return SingleChildScrollView(
                     padding: ResponsiveHelper.getResponsivePadding(
                       context,
                       horizontal: 16,
@@ -110,11 +145,11 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(
                           height: ResponsiveHelper.getResponsiveHeight(context, 14),
                         ),
-                        Expanded(
-                          child: Center(
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: maxWidth),
-                              child: Card(
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: SizedBox(
+                            width: maxWidth,
+                            child: Card(
                                 elevation: 10,
                                 shadowColor: Colors.black.withOpacity(0.12),
                                 color: Colors.white,
@@ -394,37 +429,8 @@ class _LoginPageState extends State<LoginPage> {
                                     ],
                                   ),
                                 ),
-                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          height: ResponsiveHelper.getResponsiveHeight(context, 10),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Powered by ',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: AppTheme.textSecondary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Image.asset(
-                              'assets/images/encoderit_logo.png',
-                              width: 18,
-                              height: 18,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'EncoderIT Limited',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: brandBlue,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
                         ),
                         SizedBox(
                           height: ResponsiveHelper.getResponsiveHeight(context, 6),
