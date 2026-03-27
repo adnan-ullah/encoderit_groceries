@@ -26,6 +26,55 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _isSubmitting = false;
   bool _isNavigatingToLogin = false;
 
+  void _showTopMessage({
+    required String title,
+    required String message,
+    required bool isError,
+  }) {
+    if (!mounted) return;
+
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger != null) {
+      messenger.hideCurrentMaterialBanner();
+      messenger.showMaterialBanner(
+        MaterialBanner(
+          content: Text(
+            '$title: $message',
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          backgroundColor: isError
+              ? Colors.red.shade50
+              : AppTheme.goldPrimary.withOpacity(0.12),
+          leading: Icon(
+            isError ? Icons.error_outline : Icons.check_circle_outline,
+            color: isError ? Colors.red : AppTheme.goldPrimary,
+          ),
+          actions: [
+            TextButton(
+              onPressed: messenger.hideCurrentMaterialBanner,
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          messenger.hideCurrentMaterialBanner();
+        }
+      });
+      return;
+    }
+
+    // Fallback if ScaffoldMessenger isn't available at runtime.
+    try {
+      Get.snackbar(
+        title,
+        message,
+        snackPosition: SnackPosition.TOP,
+      );
+    } catch (_) {}
+  }
+
   @override
   void dispose() {
     _usernameController.dispose();
@@ -445,24 +494,18 @@ class _SignUpPageState extends State<SignUpPage> {
 
       result.when(
         success: (_) {
-          Get.snackbar(
-            'Success',
-            'Account created successfully. Please log in.',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.white,
-            colorText: AppTheme.textPrimary,
-            margin: const EdgeInsets.all(12),
+          _showTopMessage(
+            title: 'Success',
+            message: 'Account created successfully. Please log in.',
+            isError: false,
           );
           Get.rootDelegate.offNamed(AppRoutes.login);
         },
         failure: (error) {
-          Get.snackbar(
-            'Error',
-            error.message,
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.white,
-            colorText: AppTheme.textPrimary,
-            margin: const EdgeInsets.all(12),
+          _showTopMessage(
+            title: 'Error',
+            message: error.message,
+            isError: true,
           );
         },
       );
