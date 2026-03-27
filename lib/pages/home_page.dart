@@ -320,7 +320,11 @@ class _HomePageState extends State<HomePage> {
   Widget _buildBanner(BuildContext context) {
     final theme = Theme.of(context);
     final radius = ResponsiveHelper.getResponsiveRadius(context, 20);
-    final bannerHeight = ResponsiveHelper.getResponsiveHeight(context, 190);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isLargeScreen = screenWidth >= 1024;
+    final bannerHeight = isLargeScreen
+        ? (screenWidth * 0.24).clamp(210.0, 290.0)
+        : ResponsiveHelper.getResponsiveHeight(context, 190);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
@@ -1015,15 +1019,18 @@ class _HomePageState extends State<HomePage> {
   Widget _buildFlashSaleGrid(BuildContext context, List<Product> products) {
     final theme = Theme.of(context);
     final radius = ResponsiveHelper.getResponsiveRadius(context, 16);
+    final isLargeScreen = MediaQuery.of(context).size.width >= 1024;
+    final crossAxisCount = isLargeScreen ? 3 : 2;
+    final childAspectRatio = isLargeScreen ? 0.80 : 0.72;
 
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.72,
+        childAspectRatio: childAspectRatio,
       ),
       itemCount: products
           .where((p) => p.onSale == true)
@@ -1281,6 +1288,9 @@ class _HomePageState extends State<HomePage> {
   SliverGrid _buildPopularGrid(BuildContext context, List<Product> products) {
     final theme = Theme.of(context);
     final radius = ResponsiveHelper.getResponsiveRadius(context, 16);
+    final isLargeScreen = MediaQuery.of(context).size.width >= 1024;
+    final crossAxisCount = isLargeScreen ? 3 : 2;
+    final childAspectRatio = isLargeScreen ? 0.80 : 0.72;
 
     return SliverGrid(
       delegate: SliverChildBuilderDelegate((context, index) {
@@ -1431,11 +1441,11 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       }, childCount: products.length.clamp(0, 8)),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.72,
+        childAspectRatio: childAspectRatio,
       ),
     );
   }
