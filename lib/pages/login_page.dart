@@ -17,6 +17,9 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _rememberMe = false;
+  bool _obscurePassword = true;
+  bool _isNavigatingToSignUp = false;
 
   @override
   void dispose() {
@@ -29,204 +32,404 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final controller = Get.find<AuthController>();
     final theme = Theme.of(context);
-
-    const bgColor = Color(0xFFFFF4DE); // soft cream
-    const pillColor = Color(0xFFFFE1A8); // peach pills
+    final bgColor = theme.scaffoldBackgroundColor;
+    final primary = AppTheme.goldPrimary;
+    const brandBlue = Color(0xFF00A6D6);
 
     return Scaffold(
       backgroundColor: bgColor,
       body: SafeArea(
-        child: Container(
-          width: double.infinity,
-          height: MediaQuery.of(context).size.height,
-          color: bgColor,
-          child: Column(
-            children: [
-              const Spacer(),
-              Container(
-                width: 96,
-                height: 96,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.local_grocery_store_rounded,
-                    size: 52,
-                    color: AppTheme.success,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: ResponsiveHelper.getResponsiveHeight(context, 32),
-              ),
-              Form(
-                key: _formKey,
-                child: Padding(
-                  padding: ResponsiveHelper.getResponsivePadding(
-                    context,
-                    horizontal: 32,
-                  ),
-                  child: Column(
-                    children: [
-                      Obx(() {
-                        final error = controller.errorMessage.value;
-                        if (error.isEmpty) {
-                          return const SizedBox.shrink();
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            error,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: AppTheme.error,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        );
-                      }),
-                      _PillTextField(
-                        controller: _usernameController,
-                        hintText: 'Login',
-                        background: pillColor,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Please enter your login';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(
-                        height: ResponsiveHelper.getResponsiveHeight(
-                          context,
-                          12,
-                        ),
-                      ),
-                      _PillTextField(
-                        controller: _passwordController,
-                        hintText: 'Password',
-                        background: pillColor,
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          if (value.length < 4) {
-                            return 'Password must be at least 4 characters';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(
-                        height: ResponsiveHelper.getResponsiveHeight(
-                          context,
-                          24,
-                        ),
-                      ),
-                      Obx(() {
-                        final isLoading = controller.isLoading.value;
-                        return SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: isLoading
-                                ? null
-                                : () => _onSubmit(controller),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: pillColor,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16),
-                            ),
-                            child: isLoading
-                                ? SizedBox(
-                                    width:
-                                        ResponsiveHelper.getResponsiveSize(
-                                      context,
-                                      18,
-                                    ),
-                                    height:
-                                        ResponsiveHelper.getResponsiveSize(
-                                      context,
-                                      18,
-                                    ),
-                                    child:
-                                        const CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor:
-                                          AlwaysStoppedAnimation<Color>(
-                                        Colors.black,
-                                      ),
-                                    ),
-                                  )
-                                : Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Login',
-                                        style: theme.textTheme.titleMedium
-                                            ?.copyWith(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 16,
-                                        color: Colors.black,
-                                      ),
-                                    ],
-                                  ),
-                          ),
-                        );
-                      }),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      AppTheme.cyanPale.withOpacity(0.55),
+                      Colors.white.withOpacity(0.2),
+                      theme.scaffoldBackgroundColor,
                     ],
                   ),
                 ),
               ),
-              const Spacer(),
-              Padding(
+            ),
+            GestureDetector(
+              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+              behavior: HitTestBehavior.translucent,
+              child: SingleChildScrollView(
                 padding: ResponsiveHelper.getResponsivePadding(
                   context,
-                  horizontal: 32,
-                  vertical: 16,
+                  horizontal: 16,
+                  vertical: 18,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () =>
-                          Get.rootDelegate.toNamed(AppRoutes.signUp),
-                      behavior: HitTestBehavior.opaque,
-                      child: Row(
-                        children: [
-                          Text(
-                            'Register',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                            ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: ResponsiveHelper.getResponsiveWidth(context, 520),
+                      minHeight: MediaQuery.of(context).size.height -
+                          MediaQuery.of(context).padding.vertical -
+                          28,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Card(
+                        elevation: 10,
+                        shadowColor: Colors.black.withOpacity(0.12),
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.getResponsiveRadius(context, 20),
                           ),
-                          const SizedBox(width: 8),
-                          const Icon(
-                            Icons.arrow_forward_ios,
-                            size: 14,
-                            color: Colors.black,
+                        ),
+                        child: Padding(
+                          padding: ResponsiveHelper.getResponsivePadding(
+                            context,
+                            horizontal: 18,
+                            vertical: 18,
                           ),
-                        ],
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: primary.withOpacity(0.14),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: Image.asset(
+                                      'assets/images/app_icon_2.png',
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Icon(
+                                        Icons.local_grocery_store_rounded,
+                                        color: primary,
+                                        size: 22,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'Fresh Groceries',
+                                    style: theme.textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      color: AppTheme.goldPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height:
+                                    ResponsiveHelper.getResponsiveHeight(context, 18),
+                              ),
+                              Text(
+                                'Welcome Back!',
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  color: AppTheme.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'Enter your login information',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: AppTheme.textSecondary,
+                                  height: 1.35,
+                                ),
+                              ),
+                              SizedBox(
+                                height:
+                                    ResponsiveHelper.getResponsiveHeight(context, 18),
+                              ),
+                              SizedBox(
+                                height:
+                                    ResponsiveHelper.getResponsiveHeight(context, 16),
+                              ),
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    Obx(() {
+                                      final error = controller.errorMessage.value;
+                                      if (error.isEmpty) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      return Padding(
+                                        padding: const EdgeInsets.only(bottom: 12),
+                                        child: Text(
+                                          error,
+                                          style: theme.textTheme.bodySmall?.copyWith(
+                                            color: AppTheme.error,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      );
+                                    }),
+                                    Text(
+                                      'Email Address',
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: AppTheme.textSecondary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    _ModernTextField(
+                                      controller: _usernameController,
+                                      hintText: 'Enter your Username/Email Address',
+                                      prefixIcon: Icons.email_outlined,
+                                      validator: (value) {
+                                        if (value == null ||
+                                            value.trim().isEmpty) {
+                                          return 'Please enter your login';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    SizedBox(
+                                      height: ResponsiveHelper.getResponsiveHeight(
+                                        context,
+                                        14,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Password',
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: AppTheme.textSecondary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    _ModernTextField(
+                                      controller: _passwordController,
+                                      hintText: 'Password',
+                                      prefixIcon: Icons.lock_outline,
+                                      obscureText: _obscurePassword,
+                                      suffix: IconButton(
+                                        onPressed: () => setState(() {
+                                          _obscurePassword = !_obscurePassword;
+                                        }),
+                                        icon: Icon(
+                                          _obscurePassword
+                                              ? Icons.visibility_off_outlined
+                                              : Icons.visibility_outlined,
+                                          color: AppTheme.textSecondary,
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter your password';
+                                        }
+                                        if (value.length < 4) {
+                                          return 'Password must be at least 4 characters';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    SizedBox(
+                                      height: ResponsiveHelper.getResponsiveHeight(
+                                        context,
+                                        10,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Checkbox(
+                                          value: _rememberMe,
+                                          onChanged: (v) => setState(() {
+                                            _rememberMe = v ?? false;
+                                          }),
+                                          activeColor: primary,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                          materialTapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        Text(
+                                          'Remember me',
+                                          style: theme.textTheme.bodySmall?.copyWith(
+                                            color: AppTheme.textSecondary,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        TextButton(
+                                          onPressed: () {
+                                            Get.snackbar(
+                                              'Forgot password',
+                                              'Password reset is not available yet.',
+                                              snackPosition: SnackPosition.BOTTOM,
+                                            );
+                                          },
+                                          style: TextButton.styleFrom(
+                                            padding: EdgeInsets.zero,
+                                            foregroundColor: primary,
+                                          ),
+                                          child: Text(
+                                            'Forgot Password?',
+                                            style: theme.textTheme.bodySmall?.copyWith(
+                                              color: primary,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: ResponsiveHelper.getResponsiveHeight(
+                                        context,
+                                        14,
+                                      ),
+                                    ),
+                                    Obx(() {
+                                      final isLoading = controller.isLoading.value;
+                                      return SizedBox(
+                                        width: double.infinity,
+                                        height: 52,
+                                        child: ElevatedButton(
+                                          onPressed: isLoading
+                                              ? null
+                                              : () => _onSubmit(controller),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: primary,
+                                            disabledBackgroundColor:
+                                                primary.withOpacity(0.55),
+                                            elevation: 0,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                            ),
+                                          ),
+                                          child: isLoading
+                                              ? const SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child: CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation<Color>(
+                                                      Colors.white,
+                                                    ),
+                                                  ),
+                                                )
+                                              : Text(
+                                                  'Sign In',
+                                                  style: theme.textTheme.titleMedium
+                                                      ?.copyWith(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                        ),
+                                      );
+                                    }),
+                                    const SizedBox(height: 14),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "Don't have an account? ",
+                                          style: theme.textTheme.bodyMedium?.copyWith(
+                                            color: AppTheme.textSecondary,
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: _isNavigatingToSignUp
+                                              ? null
+                                              : () async {
+                                                  setState(() {
+                                                    _isNavigatingToSignUp = true;
+                                                  });
+                                                  try {
+                                                    await Get.rootDelegate
+                                                        .toNamed(AppRoutes.signUp);
+                                                  } finally {
+                                                    if (mounted) {
+                                                      setState(() {
+                                                        _isNavigatingToSignUp =
+                                                            false;
+                                                      });
+                                                    }
+                                                  }
+                                                },
+                                          behavior: HitTestBehavior.opaque,
+                                          child: _isNavigatingToSignUp
+                                              ? SizedBox(
+                                                  width: 16,
+                                                  height: 16,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation<
+                                                            Color>(
+                                                      primary,
+                                                    ),
+                                                  ),
+                                                )
+                                              : Text(
+                                                  'Sign Up',
+                                                  style: theme.textTheme.bodyMedium
+                                                      ?.copyWith(
+                                                    color: primary,
+                                                    fontWeight: FontWeight.w800,
+                                                  ),
+                                                ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Spacer(),
+                              Divider(
+                                height: 24,
+                                color: AppTheme.textSecondary.withOpacity(0.18),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Powered by ',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: AppTheme.textSecondary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Image.asset(
+                                    'assets/images/encoderit_logo.png',
+                                    width: 18,
+                                    height: 18,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'EncoderIT Limited',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: brandBlue,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height:
+                                    ResponsiveHelper.getResponsiveHeight(context, 8),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -283,6 +486,139 @@ class _PillTextField extends StatelessWidget {
           horizontal: 20,
           vertical: 14,
         ),
+      ),
+    );
+  }
+}
+
+class _SocialButton extends StatelessWidget {
+  const _SocialButton({
+    required this.label,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppTheme.textSecondary.withOpacity(0.18)),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 20, color: AppTheme.textPrimary),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OrDivider extends StatelessWidget {
+  const _OrDivider({required this.theme});
+
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 1,
+            color: AppTheme.textSecondary.withOpacity(0.18),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          'OR',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: AppTheme.textSecondary,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Container(
+            height: 1,
+            color: AppTheme.textSecondary.withOpacity(0.18),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ModernTextField extends StatelessWidget {
+  const _ModernTextField({
+    required this.controller,
+    required this.hintText,
+    required this.prefixIcon,
+    this.validator,
+    this.obscureText = false,
+    this.suffix,
+  });
+
+  final TextEditingController controller;
+  final String hintText;
+  final IconData prefixIcon;
+  final String? Function(String?)? validator;
+  final bool obscureText;
+  final Widget? suffix;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: theme.textTheme.bodyMedium?.copyWith(
+          color: AppTheme.textSecondary.withOpacity(0.6),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        prefixIcon: Icon(prefixIcon, color: AppTheme.textSecondary),
+        suffixIcon: suffix,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: AppTheme.textSecondary.withOpacity(0.18)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: AppTheme.textSecondary.withOpacity(0.18)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: AppTheme.goldPrimary.withOpacity(0.85)),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       ),
     );
   }
