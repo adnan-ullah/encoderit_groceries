@@ -59,101 +59,106 @@ class _LoginPageState extends State<LoginPage> {
             GestureDetector(
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               behavior: HitTestBehavior.translucent,
-              child: SingleChildScrollView(
-                padding: ResponsiveHelper.getResponsivePadding(
-                  context,
-                  horizontal: 16,
-                  vertical: 18,
-                ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: ResponsiveHelper.getResponsiveWidth(context, 520),
-                      minHeight: MediaQuery.of(context).size.height -
-                          MediaQuery.of(context).padding.vertical -
-                          28,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final maxWidth =
+                      ResponsiveHelper.getResponsiveWidth(context, 520);
+
+                  return Padding(
+                    padding: ResponsiveHelper.getResponsivePadding(
+                      context,
+                      horizontal: 16,
+                      vertical: 20,
                     ),
-                    child: IntrinsicHeight(
-                      child: Card(
-                        elevation: 10,
-                        shadowColor: Colors.black.withOpacity(0.12),
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            ResponsiveHelper.getResponsiveRadius(context, 20),
-                          ),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: ResponsiveHelper.getResponsiveHeight(context, 10),
                         ),
-                        child: Padding(
-                          padding: ResponsiveHelper.getResponsivePadding(
-                            context,
-                            horizontal: 18,
-                            vertical: 18,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 44,
-                                    height: 44,
-                                    decoration: BoxDecoration(
-                                      color: primary.withOpacity(0.14),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    clipBehavior: Clip.antiAlias,
-                                    child: Image.asset(
-                                      'assets/images/app_icon_2.png',
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => Icon(
-                                        Icons.local_grocery_store_rounded,
-                                        color: primary,
-                                        size: 22,
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: primary.withOpacity(0.14),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: Image.asset(
+                                'assets/images/app_icon_2.png',
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.local_grocery_store_rounded,
+                                  color: primary,
+                                  size: 50,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Fresh Groceries',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.goldPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: ResponsiveHelper.getResponsiveHeight(context, 14),
+                        ),
+                        Expanded(
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(maxWidth: maxWidth),
+                              child: Card(
+                                elevation: 10,
+                                shadowColor: Colors.black.withOpacity(0.12),
+                                color: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    ResponsiveHelper.getResponsiveRadius(context, 20),
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: ResponsiveHelper.getResponsivePadding(
+                                    context,
+                                    horizontal: 18,
+                                    vertical: 18,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Welcome Back!',
+                                        style: theme.textTheme.headlineMedium?.copyWith(
+                                          fontWeight: FontWeight.w900,
+                                          color: AppTheme.textPrimary,
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Fresh Groceries',
-                                    style: theme.textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w900,
-                                      color: AppTheme.goldPrimary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height:
-                                    ResponsiveHelper.getResponsiveHeight(context, 18),
-                              ),
-                              Text(
-                                'Welcome Back!',
-                                style: theme.textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: AppTheme.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'Enter your login information',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textSecondary,
-                                  height: 1.35,
-                                ),
-                              ),
-                              SizedBox(
-                                height:
-                                    ResponsiveHelper.getResponsiveHeight(context, 18),
-                              ),
-                              SizedBox(
-                                height:
-                                    ResponsiveHelper.getResponsiveHeight(context, 16),
-                              ),
-                              Form(
-                                key: _formKey,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        'Enter your login information',
+                                        style: theme.textTheme.bodyMedium?.copyWith(
+                                          color: AppTheme.textSecondary,
+                                          height: 1.35,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: ResponsiveHelper.getResponsiveHeight(
+                                          context,
+                                          14,
+                                        ),
+                                      ),
+                                      Form(
+                                        key: _formKey,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                                          children: [
                                     Obx(() {
                                       final error = controller.errorMessage.value;
                                       if (error.isEmpty) {
@@ -383,50 +388,51 @@ class _LoginPageState extends State<LoginPage> {
                                         ),
                                       ],
                                     ),
-                                  ],
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              const Spacer(),
-                              Divider(
-                                height: 24,
-                                color: AppTheme.textSecondary.withOpacity(0.18),
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Powered by ',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: AppTheme.textSecondary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Image.asset(
-                                    'assets/images/encoderit_logo.png',
-                                    width: 18,
-                                    height: 18,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'EncoderIT Limited',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: brandBlue,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height:
-                                    ResponsiveHelper.getResponsiveHeight(context, 8),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
-                      ),
+                        SizedBox(
+                          height: ResponsiveHelper.getResponsiveHeight(context, 10),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Powered by ',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppTheme.textSecondary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Image.asset(
+                              'assets/images/encoderit_logo.png',
+                              width: 18,
+                              height: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'EncoderIT Limited',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: brandBlue,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: ResponsiveHelper.getResponsiveHeight(context, 6),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
           ],

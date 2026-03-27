@@ -66,94 +66,111 @@ class _SignUpPageState extends State<SignUpPage> {
             GestureDetector(
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               behavior: HitTestBehavior.translucent,
-              child: SingleChildScrollView(
-                padding: ResponsiveHelper.getResponsivePadding(
-                  context,
-                  horizontal: 16,
-                  vertical: 18,
-                ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: ResponsiveHelper.getResponsiveWidth(context, 520),
-                      minHeight: MediaQuery.of(context).size.height -
-                          MediaQuery.of(context).padding.vertical -
-                          28,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final maxWidth =
+                      ResponsiveHelper.getResponsiveWidth(context, 520);
+
+                  return Padding(
+                    padding: ResponsiveHelper.getResponsivePadding(
+                      context,
+                      horizontal: 16,
+                      vertical: 20,
                     ),
-                    child: IntrinsicHeight(
-                      child: Form(
-                        key: _formKey,
-                        child: Card(
-                          elevation: 10,
-                          shadowColor: Colors.black.withOpacity(0.12),
-                          color: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              ResponsiveHelper.getResponsiveRadius(context, 20),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: ResponsiveHelper.getResponsiveHeight(context, 10),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: primary.withOpacity(0.14),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: Image.asset(
+                                'assets/images/app_icon_2.png',
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.local_grocery_store_rounded,
+                                  color: primary,
+                                  size: 50,
+                                ),
+                              ),
                             ),
-                          ),
-                          child: Padding(
-                            padding: ResponsiveHelper.getResponsivePadding(
-                              context,
-                              horizontal: 18,
-                              vertical: 18,
+                            const SizedBox(height: 10),
+                            Text(
+                              'Fresh Groceries',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.goldPrimary,
+                              ),
                             ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 44,
-                                    height: 44,
-                                    decoration: BoxDecoration(
-                                      color: primary.withOpacity(0.14),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    clipBehavior: Clip.antiAlias,
-                                    child: Image.asset(
-                                      'assets/images/app_icon_2.png',
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => Icon(
-                                        Icons.local_grocery_store_rounded,
-                                        color: primary,
-                                        size: 22,
+                          ],
+                        ),
+                        SizedBox(
+                          height: ResponsiveHelper.getResponsiveHeight(context, 14),
+                        ),
+                        Expanded(
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(maxWidth: maxWidth),
+                              child: Form(
+                                key: _formKey,
+                                child: Card(
+                                  elevation: 10,
+                                  shadowColor: Colors.black.withOpacity(0.12),
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      ResponsiveHelper.getResponsiveRadius(
+                                        context,
+                                        20,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Fresh Groceries',
-                                    style: theme.textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w900,
-                                      color: AppTheme.goldPrimary,
+                                  child: Padding(
+                                    padding: ResponsiveHelper.getResponsivePadding(
+                                      context,
+                                      horizontal: 18,
+                                      vertical: 18,
                                     ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height:
-                                    ResponsiveHelper.getResponsiveHeight(context, 18),
-                              ),
-                              Text(
-                                'Sign Up Account',
-                                style: theme.textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: AppTheme.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'Enter your personal data to create your account.',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: AppTheme.textSecondary,
-                                  height: 1.35,
-                                ),
-                              ),
-                              SizedBox(
-                                height:
-                                    ResponsiveHelper.getResponsiveHeight(context, 18),
-                              ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Center(
+                                          child: Text(
+                                            'Sign Up',
+                                            style: theme.textTheme.headlineMedium
+                                                ?.copyWith(
+                                              fontWeight: FontWeight.w900,
+                                              color: AppTheme.textPrimary,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Center(
+                                          child: Text(
+                                            'Enter your personal data to create your account.',
+                                            style: theme.textTheme.bodyMedium?.copyWith(
+                                              color: AppTheme.textSecondary,
+                                              height: 1.35,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: ResponsiveHelper.getResponsiveHeight(
+                                            context,
+                                            14,
+                                          ),
+                                        ),
                       Row(
                         children: [
                           Expanded(
@@ -161,7 +178,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'First Name',
+                                  'User Name',
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: AppTheme.textSecondary,
                                     fontWeight: FontWeight.w600,
@@ -170,7 +187,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                 const SizedBox(height: 8),
                                 _ModernTextField(
                                   controller: _usernameController,
-                                  hintText: 'First Name',
+                                  hintText: 'User Name',
                                   prefixIcon: Icons.person_outline,
                                   validator: (v) {
                                     if (v == null || v.trim().isEmpty) {
@@ -178,27 +195,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                     }
                                     return null;
                                   },
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Last Name',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: AppTheme.textSecondary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                _ModernTextField(
-                                  controller: _lastNameController,
-                                  hintText: 'Last Name',
-                                  prefixIcon: Icons.person_outline,
                                 ),
                               ],
                             ),
@@ -381,46 +377,52 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ],
                       ),
-                      Spacer(),
-                      Divider(
-                        height: 24,
-                        color: AppTheme.textSecondary.withOpacity(0.18),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Powered by ',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: AppTheme.textSecondary,
-                              fontWeight: FontWeight.w600,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                          Image.asset(
-                            'assets/images/encoderit_logo.png',
-                            width: 18,
-                            height: 18,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'EncoderIT Limited',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: brandBlue,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
                           ),
                         ),
-                      ),
+                        SizedBox(
+                          height: ResponsiveHelper.getResponsiveHeight(context, 10),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Powered by ',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: AppTheme.textSecondary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Image.asset(
+                              'assets/images/encoderit_logo.png',
+                              width: 18,
+                              height: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'EncoderIT Limited',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: brandBlue,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: ResponsiveHelper.getResponsiveHeight(context, 6),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
-            )],
+          ],
         ),
       ),
     );
