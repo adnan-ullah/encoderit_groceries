@@ -18,8 +18,7 @@ void main() async {
   await appServices.initialize(
     environmentMode: EnvironmentMode.development,
     appConfig: AppConfig(
-      apiBaseUrl:
-          'https://encoder-staging.site/luxurious-skincare-wp/',
+      apiBaseUrl: 'https://encoder-staging.site/fresh-commerce/',
       enableLogging: true,
       apiTimeout: const Duration(seconds: 30),
     ),

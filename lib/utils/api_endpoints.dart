@@ -7,7 +7,7 @@ class ApiEndpoints {
   static const String todos = '/todos';
 
   /// Auth / login
-  /// With apiBaseUrl = https://encoder-staging.site/luxurious-skincare-wp/
+  /// With apiBaseUrl = https://encoder-staging.site/fresh-commerce/
   /// this becomes: wp-json/auth/v1/login
   static const String login = 'wp-json/auth/v1/login';
 
