@@ -28,7 +28,7 @@ _$ProductImpl _$$ProductImplFromJson(Map<String, dynamic> json) =>
       salePrice: json['sale_price'] as String?,
       onSale: json['on_sale'] as bool?,
       purchasable: json['purchasable'] as bool?,
-      totalSales: (json['total_sales'] as num?)?.toInt(),
+      totalSales: _nullableIntFromJson(json['total_sales']),
       virtual: json['virtual'] as bool?,
       downloadable: json['downloadable'] as bool?,
       downloads:

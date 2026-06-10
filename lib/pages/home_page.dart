@@ -51,6 +51,13 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadSessionUser();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final productController = Get.find<ProductController>();
+      if (!productController.isLoading.value &&
+          productController.items.isEmpty) {
+        productController.loadItems();
+      }
+    });
     // Ensure categories are loaded for the home "Browse by Category" strip.
     final categoryController = Get.find<CategoryController>();
     if (!categoryController.isLoading.value &&

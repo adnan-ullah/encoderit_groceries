@@ -50,7 +50,7 @@ mixin _$Product {
   @JsonKey(name: 'on_sale')
   bool? get onSale => throw _privateConstructorUsedError;
   bool? get purchasable => throw _privateConstructorUsedError;
-  @JsonKey(name: 'total_sales')
+  @JsonKey(name: 'total_sales', fromJson: _nullableIntFromJson)
   int? get totalSales => throw _privateConstructorUsedError;
   bool? get virtual => throw _privateConstructorUsedError;
   bool? get downloadable => throw _privateConstructorUsedError;
@@ -166,7 +166,8 @@ abstract class $ProductCopyWith<$Res> {
     @JsonKey(name: 'sale_price') String? salePrice,
     @JsonKey(name: 'on_sale') bool? onSale,
     bool? purchasable,
-    @JsonKey(name: 'total_sales') int? totalSales,
+    @JsonKey(name: 'total_sales', fromJson: _nullableIntFromJson)
+    int? totalSales,
     bool? virtual,
     bool? downloadable,
     List<ProductDownload> downloads,
@@ -611,7 +612,8 @@ abstract class _$$ProductImplCopyWith<$Res> implements $ProductCopyWith<$Res> {
     @JsonKey(name: 'sale_price') String? salePrice,
     @JsonKey(name: 'on_sale') bool? onSale,
     bool? purchasable,
-    @JsonKey(name: 'total_sales') int? totalSales,
+    @JsonKey(name: 'total_sales', fromJson: _nullableIntFromJson)
+    int? totalSales,
     bool? virtual,
     bool? downloadable,
     List<ProductDownload> downloads,
@@ -1040,7 +1042,8 @@ class _$ProductImpl implements _Product {
     @JsonKey(name: 'sale_price') this.salePrice,
     @JsonKey(name: 'on_sale') this.onSale,
     this.purchasable,
-    @JsonKey(name: 'total_sales') this.totalSales,
+    @JsonKey(name: 'total_sales', fromJson: _nullableIntFromJson)
+    this.totalSales,
     this.virtual,
     this.downloadable,
     final List<ProductDownload> downloads = const <ProductDownload>[],
@@ -1158,7 +1161,7 @@ class _$ProductImpl implements _Product {
   @override
   final bool? purchasable;
   @override
-  @JsonKey(name: 'total_sales')
+  @JsonKey(name: 'total_sales', fromJson: _nullableIntFromJson)
   final int? totalSales;
   @override
   final bool? virtual;
@@ -1626,7 +1629,8 @@ abstract class _Product implements Product {
     @JsonKey(name: 'sale_price') final String? salePrice,
     @JsonKey(name: 'on_sale') final bool? onSale,
     final bool? purchasable,
-    @JsonKey(name: 'total_sales') final int? totalSales,
+    @JsonKey(name: 'total_sales', fromJson: _nullableIntFromJson)
+    final int? totalSales,
     final bool? virtual,
     final bool? downloadable,
     final List<ProductDownload> downloads,
@@ -1727,7 +1731,7 @@ abstract class _Product implements Product {
   @override
   bool? get purchasable;
   @override
-  @JsonKey(name: 'total_sales')
+  @JsonKey(name: 'total_sales', fromJson: _nullableIntFromJson)
   int? get totalSales;
   @override
   bool? get virtual;

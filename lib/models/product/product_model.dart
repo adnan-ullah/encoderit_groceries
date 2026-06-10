@@ -4,6 +4,14 @@ import 'package:gems_data_layer/gems_data_layer.dart';
 part 'product_model.freezed.dart';
 part 'product_model.g.dart';
 
+int? _nullableIntFromJson(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String && value.isNotEmpty) return int.tryParse(value);
+  return null;
+}
+
 @freezed
 class Product with _$Product implements BaseModel {
   const factory Product({
@@ -27,7 +35,8 @@ class Product with _$Product implements BaseModel {
     @JsonKey(name: 'sale_price') String? salePrice,
     @JsonKey(name: 'on_sale') bool? onSale,
     bool? purchasable,
-    @JsonKey(name: 'total_sales') int? totalSales,
+    @JsonKey(name: 'total_sales', fromJson: _nullableIntFromJson)
+    int? totalSales,
     bool? virtual,
     bool? downloadable,
     @Default(<ProductDownload>[]) List<ProductDownload> downloads,

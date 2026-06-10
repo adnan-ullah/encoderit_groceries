@@ -10,14 +10,19 @@ class ProductController extends BaseListController<Product>
 
   ProductController({
     required this.repository,
-  }) {
+  });
+
+  @override
+  void onReady() {
+    super.onReady();
     loadItems();
   }
 
   @override
   Future<void> loadItems() async {
     items.clear();
-    await handleListResult(() => repository.getAll());
+    // Fetch fresh list so new base URL / API shape is reflected immediately.
+    await handleListResult(() => repository.getAll(useCache: false));
   }
 
   Future<void> loadById(int id) async {
