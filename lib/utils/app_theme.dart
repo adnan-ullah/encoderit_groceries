@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AppTheme {
   // Dark theme colors (kept for reference / future use)
@@ -72,6 +73,12 @@ class AppTheme {
         backgroundColor: lightSurface,
         elevation: 0,
         centerTitle: false,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          systemNavigationBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
         iconTheme: const IconThemeData(color: goldPrimary),
         titleTextStyle: const TextStyle(
           color: textPrimary,
