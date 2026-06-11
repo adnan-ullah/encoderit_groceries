@@ -211,7 +211,7 @@ class _LoginPageState extends State<LoginPage> {
                                       );
                                     }),
                                     Text(
-                                      'Email Address',
+                                      'Email Address / Username',
                                       style: theme.textTheme.bodySmall?.copyWith(
                                         color: AppTheme.textSecondary,
                                         fontWeight: FontWeight.w600,
@@ -220,7 +220,7 @@ class _LoginPageState extends State<LoginPage> {
                                     const SizedBox(height: 8),
                                     _ModernTextField(
                                       controller: _usernameController,
-                                      hintText: 'Enter your Username/Email Address',
+                                      hintText: 'Enter your Email Address / Username',
                                       prefixIcon: Icons.email_outlined,
                                       validator: (value) {
                                         if (value == null ||
