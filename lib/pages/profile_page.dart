@@ -30,6 +30,27 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadProfileData();
   }
 
+  void _showComingSoon() {
+    if (!mounted) return;
+
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger != null) {
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Coming soon'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    try {
+      Get.snackbar('Coming soon', 'This feature will be available soon.');
+    } catch (_) {}
+  }
+
   Future<void> _loadProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     final savedUsername = prefs.getString(_sessionUsernameKey)?.trim();
@@ -110,15 +131,15 @@ class _ProfilePageState extends State<ProfilePage> {
             _SectionCard(
               title: 'Account',
               children: [
-                const _ProfileRow(
+                _ProfileRow(
                   icon: Icons.location_on_outlined,
                   title: 'Shipping Address',
-                  onTap: null,
+                  onTap: _showComingSoon,
                 ),
-                const _ProfileRow(
+                _ProfileRow(
                   icon: Icons.payment_outlined,
                   title: 'Payment Methods',
-                  onTap: null,
+                  onTap: _showComingSoon,
                 ),
                 _ProfileRow(
                   icon: Icons.receipt_long_outlined,
@@ -135,7 +156,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     (item) => _ProfileRow(
                       icon: item.icon,
                       title: item.title,
-                      onTap: null,
+                      onTap: _showComingSoon,
                     ),
                   )
                   .toList(),
